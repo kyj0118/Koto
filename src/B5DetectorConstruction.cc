@@ -182,7 +182,8 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
       G4String str_scintname = str_scintname_tmp.Data();
       logicScint[iScint] = new G4LogicalVolume(solidScint, EJ200, str_scintname);
       G4double scint_offset_y = ((G4double) i - 12) * scint_size_y;
-      G4double scint_offset_z = pb_offset_z + (pb_size_z + scint_size_z)/2.0 + layer_gap_z *((G4double) iLayer);
+//      G4double scint_offset_z = pb_offset_z + (pb_size_z + scint_size_z)/2.0 + layer_gap_z *((G4double) iLayer);
+      G4double scint_offset_z = pb_offset_z + pb_size_z + scint_size_z/2.0 + layer_gap_z *((G4double) iLayer);
       if (iLayer % 2 == 0){
 	new G4PVPlacement(0,
 			  G4ThreeVector(0,scint_offset_y,scint_offset_z),
