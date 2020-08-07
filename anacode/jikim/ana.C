@@ -15,7 +15,7 @@ double x[nMat][nMaxHits];
 double y[nMat][nMaxHits];
 double z[nMat][nMaxHits];
 
-const double det_offset = 30.0;
+const double det_offset = 0.0;
 const double Thickness_Pb = 1.0;
 const double Thcikness_Scint = 5.0;
 
@@ -27,7 +27,7 @@ const int nPos = 2; //0 for x-seg, 1 for y-seg
 const double intrin_unc_xy = seg_width/sqrt(12.0);
 const double intrin_unc_z = Thcikness_Scint/sqrt(12.0);
 
-const double min_edep = 0.0;
+const double min_edep = 0.3;
 
 
 TH2D* hTotalTracks[nPos];
@@ -105,8 +105,8 @@ void AnaInLoop(int i, int proc=0){
 	}
 
 	for(int j=0;j<NumberOfLayers;j++){
-		meanx[j] = edepsum[0][j];
-		meany[j] = edepsum[1][j];
+		meanx[j] /= edepsum[0][j];
+		meany[j] /= edepsum[1][j];
 		meanx_unc[j] = sqrt( meanx_unc[j] );
 		meany_unc[j] = sqrt( meany_unc[j] );
 		for(int k=0;k<nPos;k++){
@@ -121,11 +121,21 @@ void AnaInLoop(int i, int proc=0){
 		npoints[k] = 0;
 		for(int j=0;j<NumberOfLayers;j++){
 			if( edepsum[k][j] <= min_edep ) continue;
-			gSMeanTrack[k]->SetPoint( npoints[k], meanz[k][j], meanx[j] );
-			gSMeanTrack[k]->SetPointError( npoints[k], meanz_unc[k][j], meanx_unc[j] );
+
+			if( k==0 ){
+				gSMeanTrack[k]->SetPoint( npoints[k], meanz[k][j], meanx[j] );
+				gSMeanTrack[k]->SetPointError( npoints[k], meanz_unc[k][j], meanx_unc[j] );
+			} else{
+				gSMeanTrack[k]->SetPoint( npoints[k], meanz[k][j], meany[j] );
+				gSMeanTrack[k]->SetPointError( npoints[k], meanz_unc[k][j], meany_unc[j] );
+			}
 			npoints[k]++;
 		}
 	}
+
+	if( !npoints[0] && npoints[1] ) cout << npoints[1] << endl;
+
+	if( !npoints[0] || !npoints[1] ) return;
 	
 	TF1* f1[nPos];
 	for(int k=0;k<nPos;k++){
@@ -133,6 +143,10 @@ void AnaInLoop(int i, int proc=0){
 		gSMeanTrack[k]->Fit(f1[k],"q");
 	}
 	hSlope_proc1->Fill( sqrt( pow( f1[0]->GetParameter(1),2 ) + pow( f1[1]->GetParameter(1),2 ) )*180.0/TMath::Pi() );
+
+
+	gSMeanTrack[0]->Draw("AP");
+//	gSMeanTrack[1]->Draw("AP");
  }
 }
 
@@ -147,6 +161,8 @@ void ana(){
 //	AnaInLoop(i);
 	AnaInLoop(i,1);
  }
+// AnaInLoop(0,1);
+
  hSlope_proc1->Draw();
 // AnaInLoop(0,1);
 // hTotalTracks[0]->Draw("colz");
