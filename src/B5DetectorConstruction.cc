@@ -105,7 +105,17 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
     new G4LogicalVolume(solidWorld,          //its solid
                         world_mat,           //its material
                         "World");            //its name
-  
+  /*
+  G4VPhysicalVolume* physWorld = 
+    new G4PVPlacement(0,                     //no rotation
+                      G4ThreeVector(),       //at (0,0,0)
+                      logicWorld,            //its logical volume
+                      "World",               //its name
+                      0,                     //its mother  volume
+                      false,                 //no boolean operation
+                      0,                     //copy number
+                      true);                 //overlaps checking
+  */
   G4VPhysicalVolume* physWorld = 
     new G4PVPlacement(0,                     //no rotation
                       G4ThreeVector(),       //at (0,0,0)
@@ -126,7 +136,7 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
   G4double pb_size_x = 50.*cm;
   G4double pb_size_y = 50.*cm;
   G4double pb_size_z = 1.*mm;
-  G4double pb_offset_z = 30.*mm;
+  G4double pb_offset_z = 0.5 * pb_size_z;
   
   // EJ 200 Scintillator
   G4double scint_size_x = 50.*cm;
@@ -182,8 +192,7 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
       G4String str_scintname = str_scintname_tmp.Data();
       logicScint[iScint] = new G4LogicalVolume(solidScint, EJ200, str_scintname);
       G4double scint_offset_y = ((G4double) i - 12) * scint_size_y;
-//      G4double scint_offset_z = pb_offset_z + (pb_size_z + scint_size_z)/2.0 + layer_gap_z *((G4double) iLayer);
-      G4double scint_offset_z = pb_offset_z + pb_size_z + scint_size_z/2.0 + layer_gap_z *((G4double) iLayer);
+      G4double scint_offset_z = pb_offset_z + (pb_size_z + scint_size_z)/2.0 + layer_gap_z *((G4double) iLayer);
       if (iLayer % 2 == 0){
 	new G4PVPlacement(0,
 			  G4ThreeVector(0,scint_offset_y,scint_offset_z),
