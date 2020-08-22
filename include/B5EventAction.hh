@@ -39,6 +39,7 @@
 
 #include "TTree.h"
 
+using namespace std;
 /// Event action
 const int kMaxLayer = 105;
 const int kMaxSegment = 25;
@@ -56,7 +57,6 @@ struct EMHitStruct{
   double z[kMaxScintillator];
   double t[kMaxScintillator];
   double e[kMaxScintillator];
-  
 };
 
 struct LeadHitStruct{
@@ -73,6 +73,7 @@ struct LeadHitStruct{
   double e[kMaxLayer];
 };
 
+
 struct EventInfoStruct{
   int eventID;
   int runID;
@@ -87,6 +88,7 @@ public:
   void SetBranch();
   void SetRunID(G4int RunID);
   void SetRandomSeed(long seed);
+  void SetSaveStepLevel(bool flag){fSaveStepLevel = flag;}
   virtual void BeginOfEventAction(const G4Event*);
   virtual void EndOfEventAction(const G4Event*);
   
@@ -96,6 +98,27 @@ public:
 private:
   B5RunAction* fRunAction;  
   TTree *fTree;
+  
+  bool fSaveStepLevel;
+  vector<vector<G4double>> fEMStepEdep;
+  vector<vector<G4double>> fEMPreStepx;
+  vector<vector<G4double>> fEMPreStepy;
+  vector<vector<G4double>> fEMPreStepz;
+  vector<vector<G4double>> fEMPreStept;
+  vector<vector<G4double>> fEMPostStepx;
+  vector<vector<G4double>> fEMPostStepy;
+  vector<vector<G4double>> fEMPostStepz;
+  vector<vector<G4double>> fEMPostStept;
+
+  vector<vector<G4double>> fLeadStepEdep;
+  vector<vector<G4double>> fLeadPreStepx;
+  vector<vector<G4double>> fLeadPreStepy;
+  vector<vector<G4double>> fLeadPreStepz;
+  vector<vector<G4double>> fLeadPreStept;
+  vector<vector<G4double>> fLeadPostStepx;
+  vector<vector<G4double>> fLeadPostStepy;
+  vector<vector<G4double>> fLeadPostStepz;
+  vector<vector<G4double>> fLeadPostStept;
 
 };
 

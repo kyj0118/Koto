@@ -44,6 +44,18 @@ B5LeadSD::B5LeadSD(G4String name, G4int layerNumber)
 {
   fEdep = 0.0; fEweightedx = 0.0; fEweightedy = 0.0; fEweightedz = 0.0; fEweightedt = 0.0;
   collectionName.insert("LeadHitCollection"); 
+
+  fStepEdep.clear();
+
+  fPreStepx.clear();
+  fPreStepy.clear();
+  fPreStepz.clear();
+  fPreStept.clear();
+  
+  fPostStepx.clear();
+  fPostStepy.clear();
+  fPostStepz.clear();
+  fPostStept.clear();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -70,16 +82,39 @@ G4bool B5LeadSD::ProcessHits(G4Step*step, G4TouchableHistory*)
   if (edep != 0.0){
     auto prepoint = step -> GetPreStepPoint();
     auto postpoint = step -> GetPostStepPoint();
-    G4double x = (prepoint -> GetPosition()).x() + (postpoint -> GetPosition()).x();
-    G4double y = (prepoint -> GetPosition()).y() + (postpoint -> GetPosition()).y();
-    G4double z = (prepoint -> GetPosition()).z() + (postpoint -> GetPosition()).z();
-    G4double t = prepoint -> GetLocalTime() + postpoint -> GetLocalTime();
-    x=x/2.0; y= y/2.0; z=z/2.0; t=t/2.0;
+    
+    G4double prex = (prepoint -> GetPosition()).x();
+    G4double prey = (prepoint -> GetPosition()).y();
+    G4double prez = (prepoint -> GetPosition()).z();
+    G4double pret = prepoint -> GetLocalTime();
+    
+    G4double postx = (postpoint -> GetPosition()).x();
+    G4double posty = (postpoint -> GetPosition()).y();
+    G4double postz = (postpoint -> GetPosition()).z();
+    G4double postt = prepoint -> GetLocalTime();
+    
+    G4double x = (prex + postx)/2.0;
+    G4double y = (prey + posty)/2.0;
+    G4double z = (prez + postz)/2.0;
+    G4double t = (pret + postt)/2.0;
+    
     fEdep += edep;
     fEweightedx += x * edep;
     fEweightedy += y * edep;
     fEweightedz += z * edep;
     fEweightedt += t * edep; 
+    
+    fStepEdep.push_back(edep);
+    
+    fPreStepx.push_back(prex);
+    fPreStepy.push_back(prey);
+    fPreStepz.push_back(prez);
+    fPreStept.push_back(pret);
+
+    fPostStepx.push_back(postx);
+    fPostStepy.push_back(posty);
+    fPostStepz.push_back(postz);
+    fPostStept.push_back(postt);
   }
 
   return true;
@@ -99,7 +134,23 @@ void B5LeadSD::EndOfEvent(G4HCofThisEvent* hce){
     auto hit = (B5LeadHit*) ((hce -> GetHC(fHCID)) -> GetHit(0));
     hit -> SetXYZTE(fEweightedx, fEweightedy, fEweightedz, fEweightedt, fEdep);
     hit -> SetLayerID(fLayerId);
+
+    hit -> SetPreStepPos(fPreStepx,fPreStepy,fPreStepz,fPreStept);
+    hit -> SetPostStepPos(fPostStepx,fPostStepy,fPostStepz,fPostStept);
+    hit -> SetStepEdep(fStepEdep);
     
     fEdep = 0.0; fEweightedx = 0.0; fEweightedy = 0.0; fEweightedz = 0.0; fEweightedt = 0.0;
+
+    fStepEdep.clear();
+    
+    fPreStepx.clear();
+    fPreStepy.clear();
+    fPreStepz.clear();
+    fPreStept.clear();
+    
+    fPostStepx.clear();
+    fPostStepy.clear();
+    fPostStepz.clear();
+    fPostStept.clear();
   }
 }

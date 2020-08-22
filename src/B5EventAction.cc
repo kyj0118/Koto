@@ -74,14 +74,34 @@ void B5EventAction::BeginOfEventAction(const G4Event*)
 
 void B5EventAction::EndOfEventAction(const G4Event* event)
 {
-  
+  if (fSaveStepLevel){ 
+    fEMStepEdep.clear();
+    fEMPreStepx.clear();
+    fEMPreStepy.clear();
+    fEMPreStepz.clear();
+    fEMPreStept.clear();
+    fEMPostStepx.clear();
+    fEMPostStepy.clear();
+    fEMPostStepz.clear();
+    fEMPostStept.clear();
+    
+    fLeadStepEdep.clear();
+    fLeadPreStepx.clear();
+    fLeadPreStepy.clear();
+    fLeadPreStepz.clear();
+    fLeadPreStept.clear();
+    fLeadPostStepx.clear();
+    fLeadPostStepy.clear();
+    fLeadPostStepz.clear();
+    fLeadPostStept.clear();
+  }
+
   EventInfo.eventID = event -> GetEventID();
   
   auto hce = event -> GetHCofThisEvent();
-
+  
   int iarrayEMHit = 0;
   int iarrayLeadHit = 0;
-  
   for (int i = 0; i < hce -> GetCapacity(); i++){
     if (hce -> GetHC(i) -> GetSize() == 0) continue;
     G4String iHCName = hce -> GetHC(i) -> GetName();
@@ -93,12 +113,34 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
       EMHit.segid[iarrayEMHit] = hit -> GetSegmentID();
       double xx,yy,zz,tt,ee;
       hit -> GetXYZTE(xx,yy,zz,tt,ee);
+      
       EMHit.one[iarrayEMHit] = 1;
       EMHit.x[iarrayEMHit] = xx;
       EMHit.y[iarrayEMHit] = yy;
       EMHit.z[iarrayEMHit] = zz;
       EMHit.t[iarrayEMHit] = tt;
       EMHit.e[iarrayEMHit] = ee;	
+
+      if (fSaveStepLevel){
+	vector<double> prex, prey, prez, pret;
+	vector<double> postx, posty, postz, postt;
+	vector<double> stepE;
+	
+	hit -> GetPreStepPos(prex,prey,prez,pret);
+	hit -> GetPostStepPos(postx,posty,postz,postt);
+	hit -> GetStepEdep(stepE);
+	
+	fEMStepEdep.push_back(stepE);
+	fEMPreStepx.push_back(prex);
+	fEMPreStepy.push_back(prey);
+	fEMPreStepz.push_back(prez);
+	fEMPreStept.push_back(pret);
+	fEMPostStepx.push_back(postx);
+	fEMPostStepy.push_back(posty);
+	fEMPostStepz.push_back(postz);
+	fEMPostStept.push_back(postt);
+      }
+      
       iarrayEMHit++;    
     }
 
@@ -115,6 +157,27 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
       LeadHit.z[iarrayLeadHit] = zz;
       LeadHit.t[iarrayLeadHit] = tt;
       LeadHit.e[iarrayLeadHit] = ee;	
+      
+      if (fSaveStepLevel){
+	vector<double> prex, prey, prez, pret;
+	vector<double> postx, posty, postz, postt;
+	vector<double> stepE;
+	
+	hit -> GetPreStepPos(prex,prey,prez,pret);
+	hit -> GetPostStepPos(postx,posty,postz,postt);
+	hit -> GetStepEdep(stepE);
+	
+	fLeadStepEdep.push_back(stepE);
+	fLeadPreStepx.push_back(prex);
+	fLeadPreStepy.push_back(prey);
+	fLeadPreStepz.push_back(prez);
+	fLeadPreStept.push_back(pret);
+	fLeadPostStepx.push_back(postx);
+	fLeadPostStepy.push_back(posty);
+	fLeadPostStepz.push_back(postz);
+	fLeadPostStept.push_back(postt);
+      }
+      
       iarrayLeadHit++;
     }
 
@@ -138,12 +201,11 @@ void B5EventAction::SetBranch(){
   fTree -> Branch("EMHit.CellID",EMHit.cid,"EMHit.CellID[nEMHit]/I");
   fTree -> Branch("EMHit.LayerID",EMHit.lid,"EMHit.LayerID[nEMHit]/I");
   fTree -> Branch("EMHit.SegmentID",EMHit.segid,"EMHit.SegmentID[nEMHit]/I");
-  fTree -> Branch("EMHit.x",EMHit.x,"EMHit.x[nEMHit]/D");
   fTree -> Branch("EMHit.y",EMHit.y,"EMHit.y[nEMHit]/D");
   fTree -> Branch("EMHit.z",EMHit.z,"EMHit.z[nEMHit]/D");
   fTree -> Branch("EMHit.t",EMHit.t,"EMHit.t[nEMHit]/D");
   fTree -> Branch("EMHit.e",EMHit.e,"EMHit.e[nEMHit]/D");
-  
+
   fTree -> Branch("nLeadHit",&LeadHit.nhit,"nLeadHit/I");
   fTree -> Branch("LeadHit.one",LeadHit.one,"LeadHit.one[nLeadHit]/I");
   fTree -> Branch("LeadHit.CellID",LeadHit.cid,"LeadHit.CellID[nLeadHit]/I");
@@ -153,6 +215,30 @@ void B5EventAction::SetBranch(){
   fTree -> Branch("LeadHit.z",LeadHit.z,"LeadHit.z[nLeadHit]/D");
   fTree -> Branch("LeadHit.t",LeadHit.t,"LeadHit.t[nLeadHit]/D");
   fTree -> Branch("LeadHit.e",LeadHit.e,"LeadHit.e[nLeadHit]/D");
+
+  if (fSaveStepLevel){
+    fTree -> Branch("EMStepEdep",&fEMStepEdep);
+    fTree -> Branch("EMPreStepx",&fEMPreStepx);
+    fTree -> Branch("EMPreStepy",&fEMPreStepy);
+    fTree -> Branch("EMPreStepz",&fEMPreStepz);
+    fTree -> Branch("EMPreStept",&fEMPreStept);
+    fTree -> Branch("EMStepEdep",&fEMStepEdep);
+    fTree -> Branch("EMPostStepx",&fEMPostStepx);
+    fTree -> Branch("EMPostStepy",&fEMPostStepy);
+    fTree -> Branch("EMPostStepz",&fEMPostStepz);
+    fTree -> Branch("EMPostStept",&fEMPostStept);
+
+    fTree -> Branch("LeadStepEdep",&fLeadStepEdep);
+    fTree -> Branch("LeadPreStepx",&fLeadPreStepx);
+    fTree -> Branch("LeadPreStepy",&fLeadPreStepy);
+    fTree -> Branch("LeadPreStepz",&fLeadPreStepz);
+    fTree -> Branch("LeadPreStept",&fLeadPreStept);
+    fTree -> Branch("LeadStepEdep",&fLeadStepEdep);
+    fTree -> Branch("LeadPostStepx",&fLeadPostStepx);
+    fTree -> Branch("LeadPostStepy",&fLeadPostStepy);
+    fTree -> Branch("LeadPostStepz",&fLeadPostStepz);
+    fTree -> Branch("LeadPostStept",&fLeadPostStept);
+  }
 
 }
 void B5EventAction::SetRunID(G4int RunID){

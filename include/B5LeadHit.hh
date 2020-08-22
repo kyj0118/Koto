@@ -43,6 +43,42 @@ public:
   void SetPos(G4ThreeVector xyz) { fPos = xyz; }
   G4ThreeVector GetPos() const { return fPos; }
   
+  void SetStepEdep(std::vector<G4double> stepE){
+    fStepEdep = stepE;
+  }
+  
+  void GetStepEdep(std::vector<G4double> &stepE){
+    stepE = fStepEdep;
+  }
+
+  void SetPreStepPos(std::vector<G4double> prex, std::vector<G4double> prey, std::vector<G4double> prez, std::vector<G4double> pret) {
+    fPreStepx = prex;
+    fPreStepy = prey;
+    fPreStepz = prez;
+    fPreStept = pret;
+  }
+  
+  void SetPostStepPos(std::vector<G4double> postx, std::vector<G4double> posty, std::vector<G4double> postz, std::vector<G4double> postt) {
+    fPostStepx = postx;
+    fPostStepy = posty;
+    fPostStepz = postz;
+    fPostStept = postt;
+  }
+  
+  void GetPreStepPos(std::vector<G4double> &prex, std::vector<G4double> &prey, std::vector<G4double> &prez, std::vector<G4double> &pret) {
+    prex = fPreStepx;
+    prey = fPreStepy;
+    prez = fPreStepz;
+    pret = fPreStept;
+  }
+  
+  void GetPostStepPos(std::vector<G4double> &postx, std::vector<G4double> &posty, std::vector<G4double> &postz, std::vector<G4double> &postt) {
+    postx = fPostStepx;
+    posty = fPostStepy;
+    postz = fPostStepz;
+    postt = fPostStept;
+  }
+  
   void SetLogV(G4LogicalVolume* val) { fPLogV = val; }
   const G4LogicalVolume* GetLogV() const { return fPLogV; }
 
@@ -67,6 +103,18 @@ private:
   G4double fEdep;
   G4double fTime;
   G4ThreeVector fPos;
+  std::vector<G4double> fStepEdep;
+  
+  std::vector<G4double> fPreStepx;
+  std::vector<G4double> fPreStepy;
+  std::vector<G4double> fPreStepz;
+  std::vector<G4double> fPreStept;
+  
+  std::vector<G4double> fPostStepx;
+  std::vector<G4double> fPostStepy;
+  std::vector<G4double> fPostStepz;
+  std::vector<G4double> fPostStept;
+  
   const G4LogicalVolume* fPLogV;
   const G4int fDetType = 0; // Lead : 0, Scintillator : 1  
 };

@@ -57,8 +57,21 @@ private:
   G4double fEweightedy;
   G4double fEweightedz;
   G4double fEweightedt;
+  std::vector<G4double> fStepEdep;
+  
+  std::vector<G4double> fPreStepx;
+  std::vector<G4double> fPreStepy;
+  std::vector<G4double> fPreStepz;
+  std::vector<G4double> fPreStept;
+  
+  std::vector<G4double> fPostStepx;
+  std::vector<G4double> fPostStepy;
+  std::vector<G4double> fPostStepz;
+  std::vector<G4double> fPostStept;
+  
   B5EmCalorimeterHitsCollection* fHitsCollection;
   G4int fHCID;
+  
   
 };
 
