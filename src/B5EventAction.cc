@@ -201,6 +201,7 @@ void B5EventAction::SetBranch(){
   fTree -> Branch("EMHit.CellID",EMHit.cid,"EMHit.CellID[nEMHit]/I");
   fTree -> Branch("EMHit.LayerID",EMHit.lid,"EMHit.LayerID[nEMHit]/I");
   fTree -> Branch("EMHit.SegmentID",EMHit.segid,"EMHit.SegmentID[nEMHit]/I");
+  fTree -> Branch("EMHit.x",EMHit.x,"EMHit.x[nEMHit]/D");
   fTree -> Branch("EMHit.y",EMHit.y,"EMHit.y[nEMHit]/D");
   fTree -> Branch("EMHit.z",EMHit.z,"EMHit.z[nEMHit]/D");
   fTree -> Branch("EMHit.t",EMHit.t,"EMHit.t[nEMHit]/D");
@@ -222,18 +223,16 @@ void B5EventAction::SetBranch(){
     fTree -> Branch("EMPreStepy",&fEMPreStepy);
     fTree -> Branch("EMPreStepz",&fEMPreStepz);
     fTree -> Branch("EMPreStept",&fEMPreStept);
-    fTree -> Branch("EMStepEdep",&fEMStepEdep);
     fTree -> Branch("EMPostStepx",&fEMPostStepx);
     fTree -> Branch("EMPostStepy",&fEMPostStepy);
     fTree -> Branch("EMPostStepz",&fEMPostStepz);
     fTree -> Branch("EMPostStept",&fEMPostStept);
-
+    
     fTree -> Branch("LeadStepEdep",&fLeadStepEdep);
     fTree -> Branch("LeadPreStepx",&fLeadPreStepx);
     fTree -> Branch("LeadPreStepy",&fLeadPreStepy);
     fTree -> Branch("LeadPreStepz",&fLeadPreStepz);
     fTree -> Branch("LeadPreStept",&fLeadPreStept);
-    fTree -> Branch("LeadStepEdep",&fLeadStepEdep);
     fTree -> Branch("LeadPostStepx",&fLeadPostStepx);
     fTree -> Branch("LeadPostStepy",&fLeadPostStepy);
     fTree -> Branch("LeadPostStepz",&fLeadPostStepz);

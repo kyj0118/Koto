@@ -86,12 +86,12 @@ G4bool B5LeadSD::ProcessHits(G4Step*step, G4TouchableHistory*)
     G4double prex = (prepoint -> GetPosition()).x();
     G4double prey = (prepoint -> GetPosition()).y();
     G4double prez = (prepoint -> GetPosition()).z();
-    G4double pret = prepoint -> GetLocalTime();
+    G4double pret = prepoint -> GetGlobalTime();
     
     G4double postx = (postpoint -> GetPosition()).x();
     G4double posty = (postpoint -> GetPosition()).y();
     G4double postz = (postpoint -> GetPosition()).z();
-    G4double postt = prepoint -> GetLocalTime();
+    G4double postt = prepoint -> GetGlobalTime();
     
     G4double x = (prex + postx)/2.0;
     G4double y = (prey + posty)/2.0;

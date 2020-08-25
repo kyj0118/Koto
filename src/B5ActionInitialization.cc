@@ -62,9 +62,10 @@ void B5ActionInitialization::Build() const
   auto eventAction = new B5EventAction(runAction,fTree);
   SetUserAction(eventAction);
   SetUserAction(runAction);
-  eventAction -> SetBranch();
+  
   eventAction -> SetRandomSeed(CLHEP::HepRandom::getTheSeed());
   eventAction -> SetSaveStepLevel(true);
+  eventAction -> SetBranch();
   //SetUserAction(new B5StackingAction());
 }  
 
