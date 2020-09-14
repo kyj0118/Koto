@@ -38,6 +38,8 @@
 #include "B5RunAction.hh"
 
 #include "TTree.h"
+#include "TInterpreter.h"
+#include "TSystem.h"
 
 using namespace std;
 /// Event action
@@ -110,6 +112,15 @@ private:
   vector<vector<G4double>> fEMPostStepz;
   vector<vector<G4double>> fEMPostStept;
 
+  vector<vector<G4double>> fEMParticlePx;
+  vector<vector<G4double>> fEMParticlePy;
+  vector<vector<G4double>> fEMParticlePz;
+  vector<vector<G4int> > fEMParticleTrackID;
+  vector<vector<G4int> > fEMParticleParentID;
+  vector<vector<G4double>> fEMParticleCharge;
+  vector<vector<G4double>> fEMParticleMass;
+  vector<vector<G4int> > fEMParticlePDGID;
+  
   vector<vector<G4double>> fLeadStepEdep;
   vector<vector<G4double>> fLeadPreStepx;
   vector<vector<G4double>> fLeadPreStepy;
@@ -120,6 +131,15 @@ private:
   vector<vector<G4double>> fLeadPostStepz;
   vector<vector<G4double>> fLeadPostStept;
 
+  vector<vector<G4double>> fLeadParticlePx;
+  vector<vector<G4double>> fLeadParticlePy;
+  vector<vector<G4double>> fLeadParticlePz;
+  vector<vector<G4int> > fLeadParticleTrackID;
+  vector<vector<G4int> > fLeadParticleParentID;
+  vector<vector<G4double>> fLeadParticleCharge;
+  vector<vector<G4double>> fLeadParticleMass;
+  vector<vector<G4int> > fLeadParticlePDGID;
+  
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

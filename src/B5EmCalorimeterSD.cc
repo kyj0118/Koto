@@ -57,6 +57,16 @@ B5EmCalorimeterSD::B5EmCalorimeterSD(G4String name, G4int layerNumber, G4int sci
   fPostStepy.clear();
   fPostStepz.clear();
   fPostStept.clear();
+
+  fParticlePx.clear();
+  fParticlePy.clear();
+  fParticlePz.clear();
+  fParticleTrackID.clear();
+  fParticleParentID.clear();
+  fParticleCharge.clear();
+  fParticleMass.clear();
+  fParticlePDGID.clear();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -116,6 +126,29 @@ G4bool B5EmCalorimeterSD::ProcessHits(G4Step* step, G4TouchableHistory*)
     fPostStepy.push_back(posty);
     fPostStepz.push_back(postz);
     fPostStept.push_back(postt);
+
+    // particle info
+    G4Track *tr = step -> GetTrack();
+    const G4ParticleDefinition *pdef = tr -> GetParticleDefinition();
+    G4ThreeVector pp = tr -> GetMomentum();
+    
+    G4double ppx = pp.x();
+    G4double ppy = pp.y();
+    G4double ppz = pp.z();
+    G4int trackid = tr -> GetTrackID();
+    G4int parentid = tr -> GetParentID();
+    G4double pcharge = pdef -> GetPDGCharge();
+    G4double pmass = pdef -> GetPDGMass();
+    G4int pid = pdef -> GetPDGEncoding();
+    
+    fParticlePx.push_back(ppx);
+    fParticlePy.push_back(ppy);
+    fParticlePz.push_back(ppz);
+    fParticleTrackID.push_back(trackid);
+    fParticleParentID.push_back(parentid);
+    fParticleCharge.push_back(pcharge);
+    fParticleMass.push_back(pmass);
+    fParticlePDGID.push_back(pid);
   }
   
   return true;
@@ -141,6 +174,9 @@ void B5EmCalorimeterSD::EndOfEvent(G4HCofThisEvent* hce){
     hit -> SetPreStepPos(fPreStepx,fPreStepy,fPreStepz,fPreStept);
     hit -> SetPostStepPos(fPostStepx,fPostStepy,fPostStepz,fPostStept);
     hit -> SetStepEdep(fStepEdep);
+
+    hit -> SetParticleTrackInfo(fParticlePx,fParticlePy,fParticlePz,fParticleTrackID,fParticleParentID,
+				fParticleCharge,fParticleMass,fParticlePDGID);
     
     fEdep = 0.0; fEweightedx = 0.0; fEweightedy = 0.0; fEweightedz = 0.0; fEweightedt = 0.0;
     
@@ -155,5 +191,15 @@ void B5EmCalorimeterSD::EndOfEvent(G4HCofThisEvent* hce){
     fPostStepy.clear();
     fPostStepz.clear();
     fPostStept.clear();
+    
+    fParticlePx.clear();
+    fParticlePy.clear();
+    fParticlePz.clear();
+    fParticleTrackID.clear();
+    fParticleParentID.clear();
+    fParticleCharge.clear();
+    fParticleMass.clear();
+    fParticlePDGID.clear();
+    
   }
 }

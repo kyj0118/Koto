@@ -64,6 +64,19 @@ public:
     fPostStepz = postz;
     fPostStept = postt;
   }
+
+  void SetParticleTrackInfo(std::vector<G4double> ppx, std::vector<G4double> ppy, std::vector<G4double> ppz,
+			    std::vector<G4int> trackid, std::vector<G4int> parentid,
+			    std::vector<G4double> charge, std::vector<G4double> mass, std::vector<G4int> pid){
+    fParticlePx = ppx;
+    fParticlePy = ppy;
+    fParticlePz = ppz;
+    fParticleTrackID = trackid;
+    fParticleParentID = parentid;
+    fParticleCharge = charge;
+    fParticleMass = mass;
+    fParticlePDGID = pid;
+  }
   
   void GetPreStepPos(std::vector<G4double> &prex, std::vector<G4double> &prey, std::vector<G4double> &prez, std::vector<G4double> &pret) {
     prex = fPreStepx;
@@ -77,6 +90,18 @@ public:
     posty = fPostStepy;
     postz = fPostStepz;
     postt = fPostStept;
+  }
+  void GetParticleTrackInfo(std::vector<G4double> &ppx, std::vector<G4double> &ppy, std::vector<G4double> &ppz,
+			    std::vector<G4int> &trackid, std::vector<G4int> &parentid,
+			    std::vector<G4double> &charge, std::vector<G4double> &mass, std::vector<G4int> &pid){
+    ppx = fParticlePx;
+    ppy = fParticlePy;
+    ppz = fParticlePz;
+    trackid = fParticleTrackID;
+    parentid = fParticleParentID;
+    charge = fParticleCharge;
+    mass = fParticleMass;
+    pid = fParticlePDGID;
   }
   
   void SetLogV(G4LogicalVolume* val) { fPLogV = val; }
@@ -114,6 +139,15 @@ private:
   std::vector<G4double> fPostStepy;
   std::vector<G4double> fPostStepz;
   std::vector<G4double> fPostStept;
+  
+  std::vector<G4double> fParticlePx;
+  std::vector<G4double> fParticlePy;
+  std::vector<G4double> fParticlePz;
+  std::vector<G4int> fParticleTrackID;
+  std::vector<G4int> fParticleParentID;
+  std::vector<G4double> fParticleCharge;
+  std::vector<G4double> fParticleMass;
+  std::vector<G4int> fParticlePDGID;
   
   const G4LogicalVolume* fPLogV;
   const G4int fDetType = 0; // Lead : 0, Scintillator : 1  

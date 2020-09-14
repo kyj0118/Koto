@@ -46,10 +46,7 @@
 #include "TObject.h"
 #include <Riostream.h>
 
-//using std::array;
-//using std::vector;
 using namespace std;
-
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -74,6 +71,7 @@ void B5EventAction::BeginOfEventAction(const G4Event*)
 
 void B5EventAction::EndOfEventAction(const G4Event* event)
 {
+  
   if (fSaveStepLevel){ 
     fEMStepEdep.clear();
     fEMPreStepx.clear();
@@ -84,6 +82,16 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
     fEMPostStepy.clear();
     fEMPostStepz.clear();
     fEMPostStept.clear();
+
+    fEMParticlePx.clear();
+    fEMParticlePy.clear();
+    fEMParticlePz.clear();
+    fEMParticleTrackID.clear();
+    fEMParticleParentID.clear();
+    fEMParticleCharge.clear();
+    fEMParticleMass.clear();
+    fEMParticlePDGID.clear();
+  
     
     fLeadStepEdep.clear();
     fLeadPreStepx.clear();
@@ -94,8 +102,18 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
     fLeadPostStepy.clear();
     fLeadPostStepz.clear();
     fLeadPostStept.clear();
-  }
 
+    fLeadParticlePx.clear();
+    fLeadParticlePy.clear();
+    fLeadParticlePz.clear();
+    fLeadParticleTrackID.clear();
+    fLeadParticleParentID.clear();
+    fLeadParticleCharge.clear();
+    fLeadParticleMass.clear();
+    fLeadParticlePDGID.clear();
+
+  }
+  
   EventInfo.eventID = event -> GetEventID();
   
   auto hce = event -> GetHCofThisEvent();
@@ -125,10 +143,15 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
 	vector<double> prex, prey, prez, pret;
 	vector<double> postx, posty, postz, postt;
 	vector<double> stepE;
+	vector<double> ppx, ppy, ppz;
+	vector<int> trackid, parentid;
+	vector<double> charge, mass;
+	vector<int> pid;
 	
 	hit -> GetPreStepPos(prex,prey,prez,pret);
 	hit -> GetPostStepPos(postx,posty,postz,postt);
 	hit -> GetStepEdep(stepE);
+	hit -> GetParticleTrackInfo(ppx,ppy,ppz,trackid,parentid,charge,mass,pid);
 	
 	fEMStepEdep.push_back(stepE);
 	fEMPreStepx.push_back(prex);
@@ -139,6 +162,16 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
 	fEMPostStepy.push_back(posty);
 	fEMPostStepz.push_back(postz);
 	fEMPostStept.push_back(postt);
+
+	fEMParticlePx.push_back(ppx);
+	fEMParticlePy.push_back(ppy);
+	fEMParticlePz.push_back(ppz);
+	fEMParticleTrackID.push_back(trackid);
+	fEMParticleParentID.push_back(parentid);
+	fEMParticleCharge.push_back(charge);
+	fEMParticleMass.push_back(mass);
+	fEMParticlePDGID.push_back(pid);
+	
       }
       
       iarrayEMHit++;    
@@ -162,11 +195,16 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
 	vector<double> prex, prey, prez, pret;
 	vector<double> postx, posty, postz, postt;
 	vector<double> stepE;
+	vector<double> ppx, ppy, ppz;
+	vector<int> trackid, parentid;
+	vector<double> charge, mass;
+	vector<int> pid;
 	
 	hit -> GetPreStepPos(prex,prey,prez,pret);
 	hit -> GetPostStepPos(postx,posty,postz,postt);
 	hit -> GetStepEdep(stepE);
-	
+	hit -> GetParticleTrackInfo(ppx,ppy,ppz,trackid,parentid,charge,mass,pid);
+
 	fLeadStepEdep.push_back(stepE);
 	fLeadPreStepx.push_back(prex);
 	fLeadPreStepy.push_back(prey);
@@ -176,6 +214,16 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
 	fLeadPostStepy.push_back(posty);
 	fLeadPostStepz.push_back(postz);
 	fLeadPostStept.push_back(postt);
+
+	fLeadParticlePx.push_back(ppx);
+	fLeadParticlePy.push_back(ppy);
+	fLeadParticlePz.push_back(ppz);
+	fLeadParticleTrackID.push_back(trackid);
+	fLeadParticleParentID.push_back(parentid);
+	fLeadParticleCharge.push_back(charge);
+	fLeadParticleMass.push_back(mass);
+	fLeadParticlePDGID.push_back(pid);
+
       }
       
       iarrayLeadHit++;
@@ -192,6 +240,8 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B5EventAction::SetBranch(){
+  gInterpreter -> GenerateDictionary("vector<vector<int> >","vector");
+  gSystem -> Exec("rm -f AutoDict_vector_vector_int___*");
   fTree -> Branch("eventID",&EventInfo.eventID,"eventID/I");
   fTree -> Branch("runID",&EventInfo.runID,"runID/I");
   fTree -> Branch("randomSeed",&EventInfo.randomSeed,"randomSeed/L");
@@ -206,7 +256,7 @@ void B5EventAction::SetBranch(){
   fTree -> Branch("EMHit.z",EMHit.z,"EMHit.z[nEMHit]/D");
   fTree -> Branch("EMHit.t",EMHit.t,"EMHit.t[nEMHit]/D");
   fTree -> Branch("EMHit.e",EMHit.e,"EMHit.e[nEMHit]/D");
-
+  
   fTree -> Branch("nLeadHit",&LeadHit.nhit,"nLeadHit/I");
   fTree -> Branch("LeadHit.one",LeadHit.one,"LeadHit.one[nLeadHit]/I");
   fTree -> Branch("LeadHit.CellID",LeadHit.cid,"LeadHit.CellID[nLeadHit]/I");
@@ -216,7 +266,7 @@ void B5EventAction::SetBranch(){
   fTree -> Branch("LeadHit.z",LeadHit.z,"LeadHit.z[nLeadHit]/D");
   fTree -> Branch("LeadHit.t",LeadHit.t,"LeadHit.t[nLeadHit]/D");
   fTree -> Branch("LeadHit.e",LeadHit.e,"LeadHit.e[nLeadHit]/D");
-
+  
   if (fSaveStepLevel){
     fTree -> Branch("EMStepEdep",&fEMStepEdep);
     fTree -> Branch("EMPreStepx",&fEMPreStepx);
@@ -228,6 +278,16 @@ void B5EventAction::SetBranch(){
     fTree -> Branch("EMPostStepz",&fEMPostStepz);
     fTree -> Branch("EMPostStept",&fEMPostStept);
     
+    fTree -> Branch("EMParticlePx",&fEMParticlePx);
+    fTree -> Branch("EMParticlePy",&fEMParticlePy);
+    fTree -> Branch("EMParticlePz",&fEMParticlePz);
+    //fTree -> Branch("EMParticleTrackID","vector<vector<int> >",&fEMParticleTrackID);
+    fTree -> Branch("EMParticleTrackID",&fEMParticleTrackID);
+    fTree -> Branch("EMParticleParentID",&fEMParticleParentID);
+    fTree -> Branch("EMParticleCharge",&fEMParticleCharge);
+    fTree -> Branch("EMParticleMass",&fEMParticleMass);
+    fTree -> Branch("EMParticlePID",&fEMParticlePDGID);
+    
     fTree -> Branch("LeadStepEdep",&fLeadStepEdep);
     fTree -> Branch("LeadPreStepx",&fLeadPreStepx);
     fTree -> Branch("LeadPreStepy",&fLeadPreStepy);
@@ -237,6 +297,15 @@ void B5EventAction::SetBranch(){
     fTree -> Branch("LeadPostStepy",&fLeadPostStepy);
     fTree -> Branch("LeadPostStepz",&fLeadPostStepz);
     fTree -> Branch("LeadPostStept",&fLeadPostStept);
+    
+    fTree -> Branch("LeadParticlePx",&fLeadParticlePx);
+    fTree -> Branch("LeadParticlePy",&fLeadParticlePy);
+    fTree -> Branch("LeadParticlePz",&fLeadParticlePz);
+    fTree -> Branch("LeadParticleTrackID",&fLeadParticleTrackID);
+    fTree -> Branch("LeadParticleParentID",&fLeadParticleParentID);
+    fTree -> Branch("LeadParticleCharge",&fLeadParticleCharge);
+    fTree -> Branch("LeadParticleMass",&fLeadParticleMass);
+    fTree -> Branch("LeadParticlePID",&fLeadParticlePDGID);
   }
 
 }

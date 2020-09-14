@@ -52,6 +52,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
+#include "TSystem.h"
+//#include "TInterpreter.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -81,8 +83,11 @@ int main(int argc,char** argv)
   runManager -> SetUserInitialization(new B5DetectorConstruction());
   runManager -> SetUserAction(new B5PrimaryGeneratorAction());
   runManager -> Initialize();
-  
-  
+
+  //gSystem -> Load("libMylib.so");
+  TFile *tf = new TFile(str_fname,"RECREATE");
+  //gInterpreter->GenerateDictionary("vector<vector<int>>","vector");
+    
   G4VisManager* visManager = new G4VisExecutive;
   visManager -> Initialize();
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
@@ -102,9 +107,9 @@ int main(int argc,char** argv)
 
     delete ui;
   }
-
-    
-  TFile *tf = new TFile(str_fname,"RECREATE");
+  
+  
+  tf -> cd();
   tr -> Write();
   tf -> Close();
   

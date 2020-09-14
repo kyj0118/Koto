@@ -65,6 +65,15 @@ private:
   std::vector<G4double> fPostStepy;
   std::vector<G4double> fPostStepz;
   std::vector<G4double> fPostStept;
+  
+  std::vector<G4double> fParticlePx;
+  std::vector<G4double> fParticlePy;
+  std::vector<G4double> fParticlePz;
+  std::vector<G4int> fParticleTrackID;
+  std::vector<G4int> fParticleParentID;
+  std::vector<G4double> fParticleCharge;
+  std::vector<G4double> fParticleMass;
+  std::vector<G4int> fParticlePDGID;
 
   B5LeadHitsCollection* fHitsCollection;
   G4int fHCID;
