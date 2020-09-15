@@ -241,7 +241,8 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
 
 void B5EventAction::SetBranch(){
   gInterpreter -> GenerateDictionary("vector<vector<int> >","vector");
-  gSystem -> Exec("rm -f AutoDict_vector_vector_int___*");
+  gInterpreter -> GenerateDictionary("vector<vector<double> >","vector");
+  gSystem -> Exec("rm -f AutoDict_vector_vector_*___*");
   fTree -> Branch("eventID",&EventInfo.eventID,"eventID/I");
   fTree -> Branch("runID",&EventInfo.runID,"runID/I");
   fTree -> Branch("randomSeed",&EventInfo.randomSeed,"randomSeed/L");
