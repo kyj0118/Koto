@@ -1,9 +1,0 @@
-/tracking/verbose -1
-
-/gps/position  0 0 0
-/gps/direction 0.1736481775 0 0.984807753
-/gps/particle  gamma
-/gps/energy    1000 MeV
-/run/beamOn    100
-
-/vis/verbose -1
