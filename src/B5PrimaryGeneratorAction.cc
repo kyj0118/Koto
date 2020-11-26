@@ -38,6 +38,11 @@
 #include "Randomize.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+G4ThreeVector gPrimaryParticlePosition;
+G4ThreeVector gPrimaryParticleMomentumDirection;
+int gPrimaryParticlePDG;
+double gPrimaryParticleEnergy;
+double gPrimaryParticleMass;
 
 B5PrimaryGeneratorAction::B5PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),     
@@ -48,6 +53,8 @@ B5PrimaryGeneratorAction::B5PrimaryGeneratorAction()
   G4int nofParticles = 1;
   //fParticleGun  = new G4ParticleGun(nofParticles);
   fParticleGun  = new G4GeneralParticleSource();
+
+  
   
   //auto particleTable = G4ParticleTable::GetParticleTable();
   //fPositron = particleTable->FindParticle("e+");
@@ -83,6 +90,11 @@ B5PrimaryGeneratorAction::~B5PrimaryGeneratorAction()
 void B5PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
   fParticleGun->GeneratePrimaryVertex(event);
+  gPrimaryParticlePosition = fParticleGun -> GetParticlePosition();
+  gPrimaryParticleEnergy = fParticleGun -> GetParticleEnergy();
+  gPrimaryParticleMomentumDirection = fParticleGun -> GetParticleMomentumDirection();
+  gPrimaryParticlePDG = fParticleGun ->	GetParticleDefinition() -> GetPDGEncoding();
+  gPrimaryParticleMass = fParticleGun -> GetParticleDefinition() -> GetPDGMass();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

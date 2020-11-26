@@ -43,10 +43,10 @@ RM = /usr/local/Cellar/cmake/3.14.5/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/a1004/Desktop/Koto/200821/work
+CMAKE_SOURCE_DIR = /Users/a1004/Desktop/Koto/201125/Koto
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/a1004/Desktop/Koto/200821/work/build
+CMAKE_BINARY_DIR = /Users/a1004/Desktop/Koto/201125/Koto/build
 
 # Utility rule file for B5.
 
@@ -71,6 +71,6 @@ CMakeFiles/B5.dir/clean:
 .PHONY : CMakeFiles/B5.dir/clean
 
 CMakeFiles/B5.dir/depend:
-	cd /Users/a1004/Desktop/Koto/200821/work/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/a1004/Desktop/Koto/200821/work /Users/a1004/Desktop/Koto/200821/work /Users/a1004/Desktop/Koto/200821/work/build /Users/a1004/Desktop/Koto/200821/work/build /Users/a1004/Desktop/Koto/200821/work/build/CMakeFiles/B5.dir/DependInfo.cmake --color=$(COLOR)
+	cd /Users/a1004/Desktop/Koto/201125/Koto/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/a1004/Desktop/Koto/201125/Koto /Users/a1004/Desktop/Koto/201125/Koto /Users/a1004/Desktop/Koto/201125/Koto/build /Users/a1004/Desktop/Koto/201125/Koto/build /Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/B5.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/B5.dir/depend
 

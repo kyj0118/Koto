@@ -56,12 +56,12 @@
 //#include "TInterpreter.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+bool gSaveStepLevel = false;
 int main(int argc,char** argv)
 {
   if (argc != 1 && argc != 4){
     std::cout << "./exampleB5 [1. Macro file name] [2. Output file name] [3. Random seed number]" << std::endl;
-    std::cout << "ex) ./exampleB5 run.mac example 1000" << std::endl;
+    std::cout << "ex) ./exampleB5 run.mac example 1" << std::endl;
     return 0;
   }
   if (argc == 4){
@@ -73,8 +73,17 @@ int main(int argc,char** argv)
     CLHEP::HepRandom::setTheSeed(seed);
   }
   TString str_fname = argv[2];
-  str_fname += ".root";
+  if (str_fname == ""){
+    str_fname = "vistest.root";
+  }
+
+  if (str_fname(str_fname.Sizeof()-6,5) != ".root") 
+    str_fname += ".root";
+  
   auto tr = new TTree("tree","test");
+
+  gSaveStepLevel = true;  
+  G4cout << "Save Step Level : " << gSaveStepLevel << G4endl;
   
   G4RunManager* runManager = new G4RunManager;
   
@@ -84,9 +93,7 @@ int main(int argc,char** argv)
   runManager -> SetUserAction(new B5PrimaryGeneratorAction());
   runManager -> Initialize();
 
-  //gSystem -> Load("libMylib.so");
   TFile *tf = new TFile(str_fname,"RECREATE");
-  //gInterpreter->GenerateDictionary("vector<vector<int>>","vector");
     
   G4VisManager* visManager = new G4VisExecutive;
   visManager -> Initialize();

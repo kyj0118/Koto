@@ -59,10 +59,10 @@ RM = /usr/local/Cellar/cmake/3.14.5/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/a1004/Desktop/Koto/200821/work
+CMAKE_SOURCE_DIR = /Users/a1004/Desktop/Koto/201125/Koto
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/a1004/Desktop/Koto/200821/work/build
+CMAKE_BINARY_DIR = /Users/a1004/Desktop/Koto/201125/Koto/build
 
 #=============================================================================
 # Target rules for target CMakeFiles/exampleB5.dir
@@ -71,7 +71,7 @@ CMAKE_BINARY_DIR = /Users/a1004/Desktop/Koto/200821/work/build
 CMakeFiles/exampleB5.dir/all:
 	$(MAKE) -f CMakeFiles/exampleB5.dir/build.make CMakeFiles/exampleB5.dir/depend
 	$(MAKE) -f CMakeFiles/exampleB5.dir/build.make CMakeFiles/exampleB5.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/a1004/Desktop/Koto/200821/work/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13 "Built target exampleB5"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13 "Built target exampleB5"
 .PHONY : CMakeFiles/exampleB5.dir/all
 
 # Include target in all.
@@ -81,9 +81,9 @@ all: CMakeFiles/exampleB5.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/exampleB5.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/a1004/Desktop/Koto/200821/work/build/CMakeFiles 13
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles 13
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/exampleB5.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/a1004/Desktop/Koto/200821/work/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles 0
 .PHONY : CMakeFiles/exampleB5.dir/rule
 
 # Convenience name for target.
@@ -108,14 +108,14 @@ clean: CMakeFiles/exampleB5.dir/clean
 CMakeFiles/B5.dir/all: CMakeFiles/exampleB5.dir/all
 	$(MAKE) -f CMakeFiles/B5.dir/build.make CMakeFiles/B5.dir/depend
 	$(MAKE) -f CMakeFiles/B5.dir/build.make CMakeFiles/B5.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/a1004/Desktop/Koto/200821/work/build/CMakeFiles --progress-num= "Built target B5"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles --progress-num= "Built target B5"
 .PHONY : CMakeFiles/B5.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/B5.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/a1004/Desktop/Koto/200821/work/build/CMakeFiles 13
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles 13
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/B5.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/a1004/Desktop/Koto/200821/work/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles 0
 .PHONY : CMakeFiles/B5.dir/rule
 
 # Convenience name for target.

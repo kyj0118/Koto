@@ -41,6 +41,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ios.hh"
 
+#include "B5PrimaryGeneratorAction.hh"
 #include "TClonesArray.h"
 #include "TTree.h"
 #include "TObject.h"
@@ -49,7 +50,11 @@
 using namespace std;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+extern G4ThreeVector gPrimaryParticlePosition;
+extern G4ThreeVector gPrimaryParticleMomentumDirection;
+extern int gPrimaryParticlePDG;
+extern double gPrimaryParticleEnergy;
+extern double gPrimaryParticleMass;
 B5EventAction::B5EventAction(B5RunAction *runAction, TTree *tr)
   : G4UserEventAction(), fRunAction(runAction), fTree(tr)
 {
@@ -223,7 +228,7 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
 	fLeadParticleCharge.push_back(charge);
 	fLeadParticleMass.push_back(mass);
 	fLeadParticlePDGID.push_back(pid);
-
+	
       }
       
       iarrayLeadHit++;
@@ -233,6 +238,19 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
   
   EMHit.nhit = iarrayEMHit;
   LeadHit.nhit = iarrayLeadHit;
+  
+  PrimaryParticle.x = gPrimaryParticlePosition.getX();
+  PrimaryParticle.y = gPrimaryParticlePosition.getY();
+  PrimaryParticle.z = gPrimaryParticlePosition.getZ();
+  
+  PrimaryParticle.e = gPrimaryParticleEnergy;
+  PrimaryParticle.m = gPrimaryParticleMass;
+  PrimaryParticle.p = sqrt(PrimaryParticle.e*PrimaryParticle.e - PrimaryParticle.m*PrimaryParticle.m); // magnitude of momentum
+  
+  PrimaryParticle.px = gPrimaryParticleMomentumDirection.getX() * PrimaryParticle.p;
+  PrimaryParticle.py = gPrimaryParticleMomentumDirection.getY() * PrimaryParticle.p;
+  PrimaryParticle.pz = gPrimaryParticleMomentumDirection.getZ() * PrimaryParticle.p;
+  
   fTree -> Fill();
 
 }
@@ -240,13 +258,27 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B5EventAction::SetBranch(){
-  gInterpreter -> GenerateDictionary("vector<vector<int> >","vector");
-  gInterpreter -> GenerateDictionary("vector<vector<double> >","vector");
-  gSystem -> Exec("rm -f AutoDict_vector_vector_*___*");
+  if (fSaveStepLevel){
+    gInterpreter -> GenerateDictionary("vector<vector<int> >","vector");
+    gInterpreter -> GenerateDictionary("vector<vector<double> >","vector");
+    gSystem -> Exec("rm -f AutoDict_vector_vector_*___*");
+  }
   fTree -> Branch("eventID",&EventInfo.eventID,"eventID/I");
   fTree -> Branch("runID",&EventInfo.runID,"runID/I");
   fTree -> Branch("randomSeed",&EventInfo.randomSeed,"randomSeed/L");
   
+  fTree -> Branch("PrimaryParticle.x",&PrimaryParticle.x,"PrimaryParticle.x/D");
+  fTree -> Branch("PrimaryParticle.y",&PrimaryParticle.y,"PrimaryParticle.y/D");
+  fTree -> Branch("PrimaryParticle.z",&PrimaryParticle.z,"PrimaryParticle.z/D");
+
+  fTree -> Branch("PrimaryParticle.px",&PrimaryParticle.px,"PrimaryParticle.px/D");
+  fTree -> Branch("PrimaryParticle.py",&PrimaryParticle.py,"PrimaryParticle.py/D");
+  fTree -> Branch("PrimaryParticle.pz",&PrimaryParticle.pz,"PrimaryParticle.pz/D");
+  fTree -> Branch("PrimaryParticle.p",&PrimaryParticle.p,"PrimaryParticle.p/D");
+  fTree -> Branch("PrimaryParticle.m",&PrimaryParticle.m,"PrimaryParticle.m/D");
+  fTree -> Branch("PrimaryParticle.e",&PrimaryParticle.e,"PrimaryParticle.e/D");
+  fTree -> Branch("PrimaryParticle.PDG",&PrimaryParticle.PDG,"PrimaryParticle.PDG/I");
+
   fTree -> Branch("nEMHit",&EMHit.nhit,"nEMHit/I");
   fTree -> Branch("EMHit.one",EMHit.one,"EMHit.one[nEMHit]/I");
   fTree -> Branch("EMHit.CellID",EMHit.cid,"EMHit.CellID[nEMHit]/I");
@@ -282,7 +314,6 @@ void B5EventAction::SetBranch(){
     fTree -> Branch("EMParticlePx",&fEMParticlePx);
     fTree -> Branch("EMParticlePy",&fEMParticlePy);
     fTree -> Branch("EMParticlePz",&fEMParticlePz);
-    //fTree -> Branch("EMParticleTrackID","vector<vector<int> >",&fEMParticleTrackID);
     fTree -> Branch("EMParticleTrackID",&fEMParticleTrackID);
     fTree -> Branch("EMParticleParentID",&fEMParticleParentID);
     fTree -> Branch("EMParticleCharge",&fEMParticleCharge);

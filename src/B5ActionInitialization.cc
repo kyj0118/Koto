@@ -36,6 +36,7 @@
 #include "Randomize.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+extern bool gSaveStepLevel;
 
 B5ActionInitialization::B5ActionInitialization(TTree* tr)
   : G4VUserActionInitialization(), fTree(tr)
@@ -64,7 +65,7 @@ void B5ActionInitialization::Build() const
   SetUserAction(runAction);
   
   eventAction -> SetRandomSeed(CLHEP::HepRandom::getTheSeed());
-  eventAction -> SetSaveStepLevel(true);
+  eventAction -> SetSaveStepLevel(gSaveStepLevel);
   eventAction -> SetBranch();
   //SetUserAction(new B5StackingAction());
 }  

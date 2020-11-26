@@ -39,6 +39,7 @@
 #include "Randomize.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+extern bool gSaveStepLevel;
 
 B5EmCalorimeterSD::B5EmCalorimeterSD(G4String name, G4int layerNumber, G4int scintNumber)
   : G4VSensitiveDetector(name), fNameSD(name), fLayerId(layerNumber), fSegmentId(scintNumber), fHitsCollection(nullptr), fHCID(-1)
@@ -114,43 +115,44 @@ G4bool B5EmCalorimeterSD::ProcessHits(G4Step* step, G4TouchableHistory*)
     fEweightedy += y * edep;
     fEweightedz += z * edep;
     fEweightedt += t * edep; 
-    
-    fStepEdep.push_back(edep);
-    
-    fPreStepx.push_back(prex);
-    fPreStepy.push_back(prey);
-    fPreStepz.push_back(prez);
-    fPreStept.push_back(pret);
 
-    fPostStepx.push_back(postx);
-    fPostStepy.push_back(posty);
-    fPostStepz.push_back(postz);
-    fPostStept.push_back(postt);
+    if(gSaveStepLevel == true){
+      fStepEdep.push_back(edep);
+    
+      fPreStepx.push_back(prex);
+      fPreStepy.push_back(prey);
+      fPreStepz.push_back(prez);
+      fPreStept.push_back(pret);
 
-    // particle info
-    G4Track *tr = step -> GetTrack();
-    const G4ParticleDefinition *pdef = tr -> GetParticleDefinition();
-    G4ThreeVector pp = tr -> GetMomentum();
+      fPostStepx.push_back(postx);
+      fPostStepy.push_back(posty);
+      fPostStepz.push_back(postz);
+      fPostStept.push_back(postt);
+
+      // particle info
+      G4Track *tr = step -> GetTrack();
+      const G4ParticleDefinition *pdef = tr -> GetParticleDefinition();
+      G4ThreeVector pp = tr -> GetMomentum();
     
-    G4double ppx = pp.x();
-    G4double ppy = pp.y();
-    G4double ppz = pp.z();
-    G4int trackid = tr -> GetTrackID();
-    G4int parentid = tr -> GetParentID();
-    G4double pcharge = pdef -> GetPDGCharge();
-    G4double pmass = pdef -> GetPDGMass();
-    G4int pid = pdef -> GetPDGEncoding();
+      G4double ppx = pp.x();
+      G4double ppy = pp.y();
+      G4double ppz = pp.z();
+      G4int trackid = tr -> GetTrackID();
+      G4int parentid = tr -> GetParentID();
+      G4double pcharge = pdef -> GetPDGCharge();
+      G4double pmass = pdef -> GetPDGMass();
+      G4int pid = pdef -> GetPDGEncoding();
     
-    fParticlePx.push_back(ppx);
-    fParticlePy.push_back(ppy);
-    fParticlePz.push_back(ppz);
-    fParticleTrackID.push_back(trackid);
-    fParticleParentID.push_back(parentid);
-    fParticleCharge.push_back(pcharge);
-    fParticleMass.push_back(pmass);
-    fParticlePDGID.push_back(pid);
+      fParticlePx.push_back(ppx);
+      fParticlePy.push_back(ppy);
+      fParticlePz.push_back(ppz);
+      fParticleTrackID.push_back(trackid);
+      fParticleParentID.push_back(parentid);
+      fParticleCharge.push_back(pcharge);
+      fParticleMass.push_back(pmass);
+      fParticlePDGID.push_back(pid);
+    }
   }
-  
   return true;
 }
 
@@ -170,36 +172,36 @@ void B5EmCalorimeterSD::EndOfEvent(G4HCofThisEvent* hce){
     hit -> SetXYZTE(fEweightedx, fEweightedy, fEweightedz, fEweightedt, fEdep);
     hit -> SetLayerID(fLayerId);
     hit -> SetSegmentID(fSegmentId);
-    
-    hit -> SetPreStepPos(fPreStepx,fPreStepy,fPreStepz,fPreStept);
-    hit -> SetPostStepPos(fPostStepx,fPostStepy,fPostStepz,fPostStept);
-    hit -> SetStepEdep(fStepEdep);
 
-    hit -> SetParticleTrackInfo(fParticlePx,fParticlePy,fParticlePz,fParticleTrackID,fParticleParentID,
-				fParticleCharge,fParticleMass,fParticlePDGID);
-    
+    if(gSaveStepLevel == true){     
+      hit -> SetPreStepPos(fPreStepx,fPreStepy,fPreStepz,fPreStept);
+      hit -> SetPostStepPos(fPostStepx,fPostStepy,fPostStepz,fPostStept);
+      hit -> SetStepEdep(fStepEdep);
+      hit -> SetParticleTrackInfo(fParticlePx,fParticlePy,fParticlePz,fParticleTrackID,fParticleParentID,
+				  fParticleCharge,fParticleMass,fParticlePDGID);
+
+      fStepEdep.clear();
+      
+      fPreStepx.clear();
+      fPreStepy.clear();
+      fPreStepz.clear();
+      fPreStept.clear();
+      
+      fPostStepx.clear();
+      fPostStepy.clear();
+      fPostStepz.clear();
+      fPostStept.clear();
+      
+      fParticlePx.clear();
+      fParticlePy.clear();
+      fParticlePz.clear();
+      fParticleTrackID.clear();
+      fParticleParentID.clear();
+      fParticleCharge.clear();
+      fParticleMass.clear();
+      fParticlePDGID.clear();
+      
+    }
     fEdep = 0.0; fEweightedx = 0.0; fEweightedy = 0.0; fEweightedz = 0.0; fEweightedt = 0.0;
-    
-    fStepEdep.clear();
-    
-    fPreStepx.clear();
-    fPreStepy.clear();
-    fPreStepz.clear();
-    fPreStept.clear();
-    
-    fPostStepx.clear();
-    fPostStepy.clear();
-    fPostStepz.clear();
-    fPostStept.clear();
-    
-    fParticlePx.clear();
-    fParticlePy.clear();
-    fParticlePz.clear();
-    fParticleTrackID.clear();
-    fParticleParentID.clear();
-    fParticleCharge.clear();
-    fParticleMass.clear();
-    fParticlePDGID.clear();
-    
   }
 }

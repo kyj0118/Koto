@@ -75,12 +75,19 @@ struct LeadHitStruct{
   double e[kMaxLayer];
 };
 
-
 struct EventInfoStruct{
   int eventID;
   int runID;
   long randomSeed;
 };
+
+struct PrimaryParticleInfoStruct{
+  double x,y,z;
+  double px,py,pz;
+  double p,m,e;
+  int PDG;
+};
+
 
 class B5EventAction : public G4UserEventAction
 {
@@ -97,6 +104,7 @@ public:
   EMHitStruct EMHit;
   LeadHitStruct LeadHit;
   EventInfoStruct EventInfo;
+  PrimaryParticleInfoStruct PrimaryParticle;
 private:
   B5RunAction* fRunAction;  
   TTree *fTree;
