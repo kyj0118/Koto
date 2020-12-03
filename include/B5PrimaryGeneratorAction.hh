@@ -55,13 +55,13 @@ class B5PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     virtual ~B5PrimaryGeneratorAction();
     
     virtual void GeneratePrimaries(G4Event*);
-    
+  
   
   private:
   //void DefineCommands();
-
-  //G4ParticleGun* fParticleGun;
-  G4GeneralParticleSource* fParticleGun;
+  G4int fUseMacFile;
+  G4ParticleGun* fParticleGun;
+  G4GeneralParticleSource* fGeneralParticleSource;
   //G4GenericMessenger* fMessenger;
   //G4ParticleDefinition* fPositron;
   //G4ParticleDefinition* fMuon;

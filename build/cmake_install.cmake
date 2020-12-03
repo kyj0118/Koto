@@ -40,7 +40,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
       -delete_rpath "/Users/a1004/tools/root_v6.22.02/lib"
       "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/exampleB5")
     execute_process(COMMAND /usr/bin/install_name_tool
-      -delete_rpath "/Users/a1004/tools/Geant4/4_10.06/lib"
+      -delete_rpath "/Users/a1004/tools/Geant4/10.06.p03/lib"
       "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/exampleB5")
     execute_process(COMMAND /usr/bin/install_name_tool
       -delete_rpath "/usr/local/lib"

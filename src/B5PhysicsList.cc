@@ -49,6 +49,11 @@
 #include "G4Decay.hh"
 #include "G4Threading.hh"
 
+#include "G4PhotoNuclearProcess.hh"
+#include "G4ElectronNuclearProcess.hh"
+#include "G4PositronNuclearProcess.hh"
+#include "G4MuonNuclearProcess.hh"
+
 G4ThreadLocal G4int B5PhysicsList::fVerboseLevel = 1;
 G4ThreadLocal G4int B5PhysicsList::fMaxNumPhotonStep = 20;
 G4ThreadLocal G4Cerenkov* B5PhysicsList::fCerenkovProcess = 0;
@@ -104,9 +109,33 @@ void B5PhysicsList::ConstructProcess()
   ConstructDecay();
   G4VPhysicsConstructor* emList = new G4EmStandardPhysics();
   emList->ConstructProcess(); 
+  //ConstructNuclearProcess();  
   //ConstructEM();
   //ConstructOp();
 }
+
+void B5PhysicsList::ConstructNuclearProcess(){
+  auto particleIterator=GetParticleIterator();
+  particleIterator->reset();
+  while( (*particleIterator)() ){
+    G4ParticleDefinition* particle = particleIterator->value();
+    G4ProcessManager* pmanager = particle->GetProcessManager();
+    G4String particleName = particle->GetParticleName();
+
+    if (particleName == "gamma") {
+      pmanager->AddDiscreteProcess(new G4PhotoNuclearProcess());
+    } else if (particleName == "e-") {
+      pmanager->AddDiscreteProcess(new G4ElectronNuclearProcess());
+    } else if (particleName == "e+") {
+      pmanager->AddDiscreteProcess(new G4PositronNuclearProcess());
+    } else if( particleName == "mu+" ||
+               particleName == "mu-"    ) {
+      pmanager->AddDiscreteProcess(new G4MuonNuclearProcess()); 
+    }
+  }
+}
+
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -150,7 +179,6 @@ void B5PhysicsList::ConstructEM()
       pmanager->AddDiscreteProcess(new G4GammaConversion());
       pmanager->AddDiscreteProcess(new G4ComptonScattering());
       pmanager->AddDiscreteProcess(new G4PhotoElectricEffect());
-
     } else if (particleName == "e-") {
       //electron
       // Construct processes for electron

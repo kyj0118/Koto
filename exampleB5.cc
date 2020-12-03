@@ -32,7 +32,6 @@
 #include "Randomize.hh"
 #include "time.h"
 
-#include "QGSP_BERT.hh"
 #include "B5DetectorConstruction.hh"
 #include "B5PrimaryGeneratorAction.hh"
 
@@ -40,9 +39,11 @@
 #include "B5ActionInitialization.hh"
 #include "B5PhysicsList.hh"
 #include "G4RunManager.hh"
-
+#include "G4VModularPhysicsList.hh"
+#include "G4PhysListFactory.hh"
 #include "G4UImanager.hh"
 #include "FTFP_BERT.hh"
+
 #include "G4StepLimiterPhysics.hh"
 
 
@@ -53,10 +54,12 @@
 #include "TTree.h"
 #include "TString.h"
 #include "TSystem.h"
+#include "TRandom3.h"
 //#include "TInterpreter.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 bool gSaveStepLevel = false;
+long gSeed = 0;
 int main(int argc,char** argv)
 {
   if (argc != 1 && argc != 4){
@@ -67,34 +70,34 @@ int main(int argc,char** argv)
   if (argc == 4){
     //choose the Random engine
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
-    long seed = (long) atol(argv[3]);
+    gSeed = (long) atol(argv[3]);
     //set random seed with system time
     //G4long seed = time(NULL);
-    CLHEP::HepRandom::setTheSeed(seed);
+    CLHEP::HepRandom::setTheSeed(gSeed);
+    gRandom -> SetSeed(gSeed);
   }
   TString str_fname = argv[2];
   if (str_fname == ""){
     str_fname = "vistest.root";
   }
-
+  
   if (str_fname(str_fname.Sizeof()-6,5) != ".root") 
     str_fname += ".root";
   
   auto tr = new TTree("tree","test");
-
+  
   gSaveStepLevel = true;  
   G4cout << "Save Step Level : " << gSaveStepLevel << G4endl;
   
   G4RunManager* runManager = new G4RunManager;
-  
   runManager -> SetUserInitialization(new B5PhysicsList());
   runManager -> SetUserInitialization(new B5ActionInitialization(tr));
   runManager -> SetUserInitialization(new B5DetectorConstruction());
   runManager -> SetUserAction(new B5PrimaryGeneratorAction());
   runManager -> Initialize();
-
+  
   TFile *tf = new TFile(str_fname,"RECREATE");
-    
+  
   G4VisManager* visManager = new G4VisExecutive;
   visManager -> Initialize();
   G4UImanager* UImanager = G4UImanager::GetUIpointer();

@@ -36,6 +36,7 @@
 #include "G4GenericMessenger.hh"
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
+#include "TRandom3.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 G4ThreeVector gPrimaryParticlePosition;
@@ -43,36 +44,24 @@ G4ThreeVector gPrimaryParticleMomentumDirection;
 int gPrimaryParticlePDG;
 double gPrimaryParticleEnergy;
 double gPrimaryParticleMass;
-
 B5PrimaryGeneratorAction::B5PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),     
-  fParticleGun(nullptr), 
+  fParticleGun(nullptr),
+  fGeneralParticleSource(nullptr), 
   fGamma(nullptr),
   fMomentum(1000.*MeV)
 {
-  G4int nofParticles = 1;
-  //fParticleGun  = new G4ParticleGun(nofParticles);
-  fParticleGun  = new G4GeneralParticleSource();
-
-  
-  
-  //auto particleTable = G4ParticleTable::GetParticleTable();
-  //fPositron = particleTable->FindParticle("e+");
-  //fMuon = particleTable->FindParticle("mu+");
-  //fPion = particleTable->FindParticle("pi+");
-  //fKaon = particleTable->FindParticle("kaon+");
-  //fProton = particleTable->FindParticle("proton");
-  //fGamma = particleTable->FindParticle("gamma");
-  //fGamma = particleTable->FindParticle("mu-");
-  
-  // default particle kinematics
-  /*
-  fParticleGun->SetParticlePosition(G4ThreeVector(0.,0.,0.));
-  fParticleGun->SetParticleDefinition(fGamma);
-  fParticleGun->SetParticleTime(0.0*ns);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
-  fParticleGun->SetParticleMomentum(fMomentum);
-  */
+  fUseMacFile = 0;
+  fMomentum = 1000.*MeV;
+  if(fUseMacFile){
+    fGeneralParticleSource  = new G4GeneralParticleSource();
+  }
+  else {
+    auto particleTable = G4ParticleTable::GetParticleTable();
+    fGamma = particleTable->FindParticle("gamma");
+    fParticleGun  = new G4ParticleGun(fGamma);
+    fParticleGun->SetParticleMomentum(fMomentum);
+  }
   
   // define commands for this class
   //DefineCommands();
@@ -83,18 +72,47 @@ B5PrimaryGeneratorAction::B5PrimaryGeneratorAction()
 B5PrimaryGeneratorAction::~B5PrimaryGeneratorAction()
 {
   delete fParticleGun;
+  delete fGeneralParticleSource;
+  //delete fGamma;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B5PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
-  fParticleGun->GeneratePrimaryVertex(event);
-  gPrimaryParticlePosition = fParticleGun -> GetParticlePosition();
-  gPrimaryParticleEnergy = fParticleGun -> GetParticleEnergy();
-  gPrimaryParticleMomentumDirection = fParticleGun -> GetParticleMomentumDirection();
-  gPrimaryParticlePDG = fParticleGun ->	GetParticleDefinition() -> GetPDGEncoding();
-  gPrimaryParticleMass = fParticleGun -> GetParticleDefinition() -> GetPDGMass();
+  
+  if(fUseMacFile){
+    gPrimaryParticlePosition = fGeneralParticleSource -> GetParticlePosition();
+    gPrimaryParticleEnergy = fGeneralParticleSource -> GetParticleEnergy();
+    gPrimaryParticleMomentumDirection = fGeneralParticleSource -> GetParticleMomentumDirection();
+    gPrimaryParticlePDG = fGeneralParticleSource ->	GetParticleDefinition() -> GetPDGEncoding();
+    gPrimaryParticleMass = fGeneralParticleSource -> GetParticleDefinition() -> GetPDGMass();
+    fGeneralParticleSource -> GeneratePrimaryVertex(event);
+  }
+  else {
+    fParticleGun->SetParticleDefinition(fGamma);  
+    fParticleGun->SetParticlePosition(G4ThreeVector(0.,0.,0.));
+    fParticleGun->SetParticleTime(0.0*ns);
+    // random generation
+    double dx,dy,dz;
+    double theta_limit = cos(30.0/180.0*3.14159265358979); // 0 ~ 30 degree
+    dz = gRandom -> Uniform(theta_limit,1); // uniform cos(theta)
+    double phi = gRandom -> Uniform(0,4*3.14159265358979); // uniform phi
+    double sin_theta= sqrt(1.0-dz*dz);
+    dx = sin_theta * cos(phi);
+    dy = sin_theta * sin(phi); 
+    //gRandom -> Sphere(dx,dy,dz,1);
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(dx,dy,dz));
+    
+    
+    gPrimaryParticlePosition = fParticleGun -> GetParticlePosition();
+    gPrimaryParticleEnergy = fParticleGun -> GetParticleEnergy();
+    gPrimaryParticleMomentumDirection = fParticleGun -> GetParticleMomentumDirection();
+    gPrimaryParticlePDG = fParticleGun ->	GetParticleDefinition() -> GetPDGEncoding();
+    gPrimaryParticleMass = fParticleGun -> GetParticleDefinition() -> GetPDGMass();
+
+    fParticleGun->GeneratePrimaryVertex(event);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
