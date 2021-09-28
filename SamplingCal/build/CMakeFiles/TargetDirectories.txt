@@ -1,8 +1,0 @@
-/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/install/local.dir
-/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/install/strip.dir
-/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/install.dir
-/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/list_install_components.dir
-/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/rebuild_cache.dir
-/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/exampleB5.dir
-/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/edit_cache.dir
-/Users/a1004/Desktop/Koto/201125/Koto/build/CMakeFiles/B5.dir

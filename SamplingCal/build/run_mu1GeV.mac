@@ -1,9 +1,0 @@
-/tracking/verbose -1
-
-/gps/position  0 0 0
-/gps/direction 0 0 1
-/gps/particle  mu-
-/gps/energy    1000 MeV
-/run/beamOn    3
-
-/vis/verbose warnings
