@@ -68,10 +68,18 @@
 B5DetectorConstruction::B5DetectorConstruction()
   : G4VUserDetectorConstruction()
 {
-  NumberOfLayers = 105;
-  NumberOfScintillators = 25;
-  //NumberOfLayers = 1;
-  //NumberOfScintillators = 25;
+  fNumberOfLayers = 105;
+  fNumberOfScintillators = 105; // 5mm width
+  //fNumberOfScintillators = 35; // 15mm width
+  
+  fScintLength = 52.5*cm;
+  fScintWidth = 0.5*cm;
+  fScintThickness = 5.0*mm;
+  //fScintThickness = 15.0*mm;
+  
+  fConverterLength = fScintLength;
+  fConverterThickness = 1.0*mm;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -105,17 +113,7 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
     new G4LogicalVolume(solidWorld,          //its solid
                         world_mat,           //its material
                         "World");            //its name
-  /*
-  G4VPhysicalVolume* physWorld = 
-    new G4PVPlacement(0,                     //no rotation
-                      G4ThreeVector(),       //at (0,0,0)
-                      logicWorld,            //its logical volume
-                      "World",               //its name
-                      0,                     //its mother  volume
-                      false,                 //no boolean operation
-                      0,                     //copy number
-                      true);                 //overlaps checking
-  */
+  
   G4VPhysicalVolume* physWorld = 
     new G4PVPlacement(0,                     //no rotation
                       G4ThreeVector(),       //at (0,0,0)
@@ -131,30 +129,24 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
 
   // Detector
 
-  // Pb plate
-  G4Material* detector_mat_pb = nist -> FindOrBuildMaterial("G4_Pb");
-  G4double pb_size_x = 50.*cm;
-  G4double pb_size_y = 50.*cm;
-  G4double pb_size_z = 1.*mm;
-  G4double pb_offset_z = 0.5 * pb_size_z;
+  // Materials
+  G4Material* Material_Pb = nist -> FindOrBuildMaterial("G4_Pb");
+  G4Material* Material_Scint = nist -> FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
   
+  // Pb plate
+  G4double pb_size_x = fConverterLength;
+  //G4double Pb_size_x = 1.*cm;
+  G4double pb_size_y = fConverterLength;
+  G4double pb_size_z = fConverterThickness; 
+  G4double pb_offset_z = 0.5 * pb_size_z;  
   // EJ 200 Scintillator
-  G4double scint_size_x = 50.*cm;
-  G4double scint_size_y = 2.*cm;
-  G4double scint_size_z = 5.*mm;
-  //G4double scint_offset_z = pb_offset_z + (pb_size_z + scint_size_z)/2.0;
+  G4double scint_size_x = fScintLength;
+  G4double scint_size_y = fScintWidth;
+  G4double scint_size_z = fScintThickness;
+  
   G4double layer_gap_z = pb_size_z + scint_size_z;
-
-  //G4Element* H = new G4Element("Hydrogen"  , "H", 1., 1.00*g/mole);
-  //G4Element* C = new G4Element("Carbon"  , "C", 6., 12.0107*g/mole);
-  //G4Element* O = new G4Element("Oxygen", "O", 8., 15.9994*g/mole);
-  //G4Element* N = new G4Element("Nitrogen", "N", 7., 14.01*g/mole);
-  //G4Element* Si = new G4Element("Silicon","Si", 14., 28.0855*g/mole);
-  //G4Element* Al = new G4Element("Aluminum", "Al", 13., 26.981*g / mole);
-  G4Material* EJ200 = nist -> FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
-  //G4Material* EJ200 = new G4Material("scintillator", 1.023*g/cm3, 2);
-  //EJ200 -> AddElement(C, 91.6*perCent);
-  //EJ200 -> AddElement(H, 8.4*perCent);
+  
+  
   
   std::vector<G4double> vRot;
   vRot.clear();
@@ -179,19 +171,20 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
 				0.5*scint_size_z);
   
   
-  G4LogicalVolume* logicScint[2625] = {NULL};
+  G4LogicalVolume* logicScint[105*105] = {NULL};
   G4LogicalVolume* logicLead[105] = {NULL};
   
   
-  for (int iLayer = 0; iLayer < NumberOfLayers; iLayer++){
+  for (int iLayer = 0; iLayer < fNumberOfLayers; iLayer++){
     TString str_leadname_tmp = Form("Lead%d",iLayer);
     G4String str_leadname = str_leadname_tmp.Data();
-    for (int i = 0 ; i < NumberOfScintillators; i++){
-      G4int iScint = i + iLayer * NumberOfScintillators;
+    for (int i = 0 ; i < fNumberOfScintillators; i++){
+      G4int iScint = i + iLayer * fNumberOfScintillators;
       TString str_scintname_tmp = Form("Scint%d_%d",iLayer,i);
       G4String str_scintname = str_scintname_tmp.Data();
-      logicScint[iScint] = new G4LogicalVolume(solidScint, EJ200, str_scintname);
-      G4double scint_offset_y = ((G4double) i - 12) * scint_size_y;
+      logicScint[iScint] = new G4LogicalVolume(solidScint, Material_Scint, str_scintname);
+      G4double dnscint = (G4double) (fNumberOfScintillators-1);
+      G4double scint_offset_y = ((G4double) i - dnscint/2.0) * scint_size_y;
       G4double scint_offset_z = pb_offset_z + (pb_size_z + scint_size_z)/2.0 + layer_gap_z *((G4double) iLayer);
       if (iLayer % 2 == 0){
 	new G4PVPlacement(0,
@@ -215,7 +208,7 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
       }
     }
     logicLead[iLayer] = new G4LogicalVolume(solidLead,
-    					    detector_mat_pb,
+    					    Material_Pb,
 					    str_leadname);
 
     new G4PVPlacement(0,
@@ -248,9 +241,9 @@ void B5DetectorConstruction::ConstructSDandField()
 {
 
   //Sensitive Detector
-  for (int iLayer = 0 ; iLayer < NumberOfLayers; iLayer++){
+  for (int iLayer = 0 ; iLayer < fNumberOfLayers; iLayer++){
     TString str_ilayer_tmp = Form("%d",iLayer);
-    for (int iScint = 0 ; iScint < NumberOfScintillators; iScint++){
+    for (int iScint = 0 ; iScint < fNumberOfScintillators; iScint++){
       TString str_iscint_tmp = Form("%d",iScint);
       //G4String str_ilayer = str_ilayer_tmp.Data();
       //G4String str_iscint = str_iscint_tmp.Data();

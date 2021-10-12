@@ -11,8 +11,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/exampleB5.dir/src/B5PrimaryGeneratorAction.cc.o"
   "CMakeFiles/exampleB5.dir/src/B5RunAction.cc.o"
   "CMakeFiles/exampleB5.dir/src/B5StackingAction.cc.o"
-  "exampleB5.pdb"
   "exampleB5"
+  "exampleB5.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

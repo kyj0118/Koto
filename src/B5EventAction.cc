@@ -120,7 +120,9 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
   }
   
   EventInfo.eventID = event -> GetEventID();
-  
+  if (EventInfo.eventID %100 == 0){
+    G4cout << "event ID : " << EventInfo.eventID << G4endl;
+  }
   auto hce = event -> GetHCofThisEvent();
   
   int iarrayEMHit = 0;

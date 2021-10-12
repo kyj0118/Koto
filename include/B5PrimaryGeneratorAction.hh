@@ -62,17 +62,9 @@ class B5PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   G4int fUseMacFile;
   G4ParticleGun* fParticleGun;
   G4GeneralParticleSource* fGeneralParticleSource;
-  //G4GenericMessenger* fMessenger;
-  //G4ParticleDefinition* fPositron;
-  //G4ParticleDefinition* fMuon;
-  //G4ParticleDefinition* fPion;
-  //G4ParticleDefinition* fKaon;
-  //G4ParticleDefinition* fProton;
-  G4ParticleDefinition* fGamma;
+  G4ParticleDefinition* fParticle;
   G4double fMomentum;
-  //G4double fSigmaMomentum;
-  //G4double fSigmaAngle;
-  //G4bool fRandomizePrimary;
+  
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

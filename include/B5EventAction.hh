@@ -44,7 +44,7 @@
 using namespace std;
 /// Event action
 const int kMaxLayer = 105;
-const int kMaxSegment = 25;
+const int kMaxSegment = 35*3;
 const int kMaxScintillator = kMaxLayer * kMaxSegment;
 
 struct EMHitStruct{

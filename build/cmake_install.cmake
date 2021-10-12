@@ -1,4 +1,4 @@
-# Install script for directory: /Users/a1004/Desktop/Koto/201125/Koto
+# Install script for directory: /Users/a1004/Desktop/Koto/git_5mmdesign/Koto
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -32,12 +32,17 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
+# Set default install directory permissions.
+if(NOT DEFINED CMAKE_OBJDUMP)
+  set(CMAKE_OBJDUMP "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/objdump")
+endif()
+
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/Users/a1004/Desktop/Koto/201125/Koto/build/exampleB5")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/Users/a1004/Desktop/Koto/git_5mmdesign/Koto/build/exampleB5")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/exampleB5" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/exampleB5")
     execute_process(COMMAND /usr/bin/install_name_tool
-      -delete_rpath "/Users/a1004/tools/root_v6.22.02/lib"
+      -delete_rpath "/Users/a1004/tools/root_v6.22.06/lib"
       "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/exampleB5")
     execute_process(COMMAND /usr/bin/install_name_tool
       -delete_rpath "/Users/a1004/tools/Geant4/10.06.p03/lib"
@@ -59,5 +64,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/a1004/Desktop/Koto/201125/Koto/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/a1004/Desktop/Koto/git_5mmdesign/Koto/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

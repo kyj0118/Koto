@@ -28,38 +28,52 @@
 /// \brief Main program of the analysis/B5 example
 
 #include "globals.hh"
-#include "G4UImanager.hh"
 #include "Randomize.hh"
 #include "time.h"
 
+// User Defined Detector
 #include "B5DetectorConstruction.hh"
 #include "B5PrimaryGeneratorAction.hh"
-
 #include "B5DetectorConstruction.hh"
 #include "B5ActionInitialization.hh"
-#include "B5PhysicsList.hh"
+
+// Geant4
+#include "G4UImanager.hh"
 #include "G4RunManager.hh"
 #include "G4VModularPhysicsList.hh"
-#include "G4PhysListFactory.hh"
 #include "G4UImanager.hh"
-#include "FTFP_BERT.hh"
-
 #include "G4StepLimiterPhysics.hh"
-
-
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
+// Physics list package
+#include "FTFP_BERT.hh"
+
+// Root
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
 #include "TSystem.h"
 #include "TRandom3.h"
-//#include "TInterpreter.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-bool gSaveStepLevel = false;
-long gSeed = 0;
+
+// Global variables set by user
+bool gSaveStepLevel = false;    // 
+long gSeed = 0;                 // Random seed number. 0 for time seed 
+bool gUseGPS = true;            //
+bool gGenerateStepTheta;  //
+
+
+// if gUseGPS = false, user defined beam conditions
+G4double gThetaLimitMin;  
+G4double gThetaLimitMax;
+G4double gBeamMomentum;
+G4String gParticle;
+
+G4double gNsteps;
+G4double gTheta_step;
+
 int main(int argc,char** argv)
 {
   if (argc != 1 && argc != 4){
@@ -67,30 +81,64 @@ int main(int argc,char** argv)
     std::cout << "ex) ./exampleB5 run.mac example 1" << std::endl;
     return 0;
   }
+  
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //                                      User Defined Parameters                                                //
+  
+  
+  gSaveStepLevel = false;  // whether save all the step information or not
+  gUseGPS = false;  // [true] : use General Particle Source described in your.mac file (/gps/position ...)   [false] : Random angle generation
+  gGenerateStepTheta = false;
+  if (gUseGPS == false){ // Random Beam Generation Setting
+    
+    if (gGenerateStepTheta == true){
+      // special generation: 5 deg step (0 ~ 30 deg) in polar angle theta
+      gNsteps = 7; // number of steps: Generated angle [0 ~ (Nstep-1)*step]
+      gTheta_step = 5; // step size of theta [deg]
+    }
+    
+    if (gGenerateStepTheta == false){
+      //                     // Uniform azimuthal angle [0 ~ 2pi]    
+      gThetaLimitMin = 0;    // polar angle min [deg]
+      gThetaLimitMax = 50;   // polar angle max [deg]
+    }
+    
+    gBeamMomentum = 1000 * CLHEP::MeV; // Primary particle momentum
+    gParticle = "gamma";
+  }
+
+  if (argc == 1) gUseGPS = true; // use vis.mac
+  
+  //                                      User Defined Parameters                                                //
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   if (argc == 4){
-    //choose the Random engine
+    //Random engine
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
     gSeed = (long) atol(argv[3]);
-    //set random seed with system time
-    //G4long seed = time(NULL);
     CLHEP::HepRandom::setTheSeed(gSeed);
     gRandom -> SetSeed(gSeed);
   }
-  TString str_fname = argv[2];
-  if (str_fname == ""){
-    str_fname = "vistest.root";
-  }
   
-  if (str_fname(str_fname.Sizeof()-6,5) != ".root") 
-    str_fname += ".root";
-  
-  auto tr = new TTree("tree","test");
-  
-  gSaveStepLevel = true;  
   G4cout << "Save Step Level : " << gSaveStepLevel << G4endl;
+  if (gUseGPS)
+    G4cout << "Use GPS in .mac file" << G4endl;
+  else 
+    G4cout << "Random Theta Generation" << G4endl;
   
+  TString str_fname = argv[2];
+  if (!str_fname.EndsWith(".root")){
+    str_fname += ".root";
+  }
+  else if (str_fname == ""){
+    str_fname = "VisMac.root";
+  }
+
+  auto tr = new TTree("tree","Geant4 output");
+  
+  auto physicsList = new FTFP_BERT;
   G4RunManager* runManager = new G4RunManager;
-  runManager -> SetUserInitialization(new B5PhysicsList());
+  runManager -> SetUserInitialization(physicsList);
   runManager -> SetUserInitialization(new B5ActionInitialization(tr));
   runManager -> SetUserInitialization(new B5DetectorConstruction());
   runManager -> SetUserAction(new B5PrimaryGeneratorAction());
@@ -101,30 +149,29 @@ int main(int argc,char** argv)
   G4VisManager* visManager = new G4VisExecutive;
   visManager -> Initialize();
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
-  if (argc != 1) 
-  {
+  
+  if (argc != 1) {
+    
     G4String command = "/control/execute ";
     G4String fileName = argv[1];
     UImanager -> ApplyCommand(command+fileName);
-
+    
   }
   else 
   {
-
+    gUseGPS = true;
     G4UIExecutive* ui = new G4UIExecutive(argc, argv);
     UImanager -> ApplyCommand("/control/execute vis.mac"); 
     ui -> SessionStart();
-
+    
     delete ui;
   }
-  
-  
+
   tf -> cd();
   tr -> Write();
   tf -> Close();
-  
+
   delete visManager;
-  delete runManager;
 
   return 0;
 }

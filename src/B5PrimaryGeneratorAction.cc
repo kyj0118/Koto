@@ -44,27 +44,33 @@ G4ThreeVector gPrimaryParticleMomentumDirection;
 int gPrimaryParticlePDG;
 double gPrimaryParticleEnergy;
 double gPrimaryParticleMass;
+extern bool gUseGPS;
+extern bool gGenerateStepTheta;
+extern G4double gNsteps;
+extern G4double gTheta_step;
+
+extern G4double gThetaLimitMin;  
+extern G4double gThetaLimitMax;
+extern G4double gBeamMomentum;
+extern G4String gParticle;
+
 B5PrimaryGeneratorAction::B5PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),     
   fParticleGun(nullptr),
   fGeneralParticleSource(nullptr), 
-  fGamma(nullptr),
+  fParticle(nullptr),
   fMomentum(1000.*MeV)
 {
-  fUseMacFile = 0;
-  fMomentum = 1000.*MeV;
-  if(fUseMacFile){
+  fMomentum = gBeamMomentum;
+  if(gUseGPS){
     fGeneralParticleSource  = new G4GeneralParticleSource();
   }
   else {
     auto particleTable = G4ParticleTable::GetParticleTable();
-    fGamma = particleTable->FindParticle("gamma");
-    fParticleGun  = new G4ParticleGun(fGamma);
+    fParticle = particleTable->FindParticle(gParticle);
+    fParticleGun  = new G4ParticleGun(fParticle);
     fParticleGun->SetParticleMomentum(fMomentum);
   }
-  
-  // define commands for this class
-  //DefineCommands();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -73,44 +79,47 @@ B5PrimaryGeneratorAction::~B5PrimaryGeneratorAction()
 {
   delete fParticleGun;
   delete fGeneralParticleSource;
-  //delete fGamma;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B5PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
-  
-  if(fUseMacFile){
+  if(gUseGPS){
+    fGeneralParticleSource -> GeneratePrimaryVertex(event);
     gPrimaryParticlePosition = fGeneralParticleSource -> GetParticlePosition();
     gPrimaryParticleEnergy = fGeneralParticleSource -> GetParticleEnergy();
     gPrimaryParticleMomentumDirection = fGeneralParticleSource -> GetParticleMomentumDirection();
-    gPrimaryParticlePDG = fGeneralParticleSource ->	GetParticleDefinition() -> GetPDGEncoding();
+    gPrimaryParticlePDG = fGeneralParticleSource -> GetParticleDefinition() -> GetPDGEncoding();
     gPrimaryParticleMass = fGeneralParticleSource -> GetParticleDefinition() -> GetPDGMass();
-    fGeneralParticleSource -> GeneratePrimaryVertex(event);
   }
   else {
-    fParticleGun->SetParticleDefinition(fGamma);  
+    fParticleGun->SetParticleDefinition(fParticle);  
     fParticleGun->SetParticlePosition(G4ThreeVector(0.,0.,0.));
     fParticleGun->SetParticleTime(0.0*ns);
     // random generation
     double dx,dy,dz;
-    double theta_limit = cos(30.0/180.0*3.14159265358979); // 0 ~ 30 degree
-    dz = gRandom -> Uniform(theta_limit,1); // uniform cos(theta)
-    double phi = gRandom -> Uniform(0,4*3.14159265358979); // uniform phi
+    if (gGenerateStepTheta == true){
+      G4double GenTheta = ( (int) (gNsteps * gRandom -> Uniform()) );
+      GenTheta = GenTheta*gTheta_step * 3.14159265358979/180.0;
+      dz = cos(GenTheta);
+    }
+    else{
+      double theta = gRandom -> Uniform(gThetaLimitMin/180.0*3.14159265358979,gThetaLimitMax/180.0*3.14159265358979);
+      dz = cos(theta);
+    }
+    double phi = gRandom -> Uniform(0,2*3.14159265358979); // uniform phi 
     double sin_theta= sqrt(1.0-dz*dz);
     dx = sin_theta * cos(phi);
     dy = sin_theta * sin(phi); 
-    //gRandom -> Sphere(dx,dy,dz,1);
-    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(dx,dy,dz));
     
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(dx,dy,dz));
     
     gPrimaryParticlePosition = fParticleGun -> GetParticlePosition();
     gPrimaryParticleEnergy = fParticleGun -> GetParticleEnergy();
     gPrimaryParticleMomentumDirection = fParticleGun -> GetParticleMomentumDirection();
-    gPrimaryParticlePDG = fParticleGun ->	GetParticleDefinition() -> GetPDGEncoding();
+    gPrimaryParticlePDG = fParticleGun -> GetParticleDefinition() -> GetPDGEncoding();
     gPrimaryParticleMass = fParticleGun -> GetParticleDefinition() -> GetPDGMass();
-
     fParticleGun->GeneratePrimaryVertex(event);
   }
 }
