@@ -64,15 +64,21 @@ long gSeed = 0;                 // Random seed number. 0 for time seed
 bool gUseGPS = true;            //
 bool gGenerateStepTheta;  //
 bool gGenerateUniformPhi = true;  //
+bool gGenearteUniformMomentum = false;
+bool gGenearteUniformPosition = false;
 
-
-// if gUseGPS = false, user defined beam conditions
+G4double gBeamMomentumMax;
+G4double gBeamMomentumMin;
 G4double gThetaLimitMin;  
 G4double gThetaLimitMax;
 G4double gGeneratePhi;
 G4double gBeamMomentum;
 G4String gParticle;
-G4ThreeVector gPrimaryParticlePosition;
+G4ThreeVector gPrimaryPosition;
+G4double gPrimaryParticlePositionXmin;
+G4double gPrimaryParticlePositionXmax;
+G4double gPrimaryParticlePositionYmin;
+G4double gPrimaryParticlePositionYmax;
 
 G4double gNsteps;
 G4double gTheta_step;
@@ -92,7 +98,7 @@ int main(int argc,char** argv)
   gSaveStepLevel = false;  // whether save all the step information or not
   gUseGPS = false;  // [true] : use General Particle Source described in your.mac file (/gps/position ...)   [false] : defined at bellow
   gGenerateStepTheta = false;
-  gPrimaryParticlePosition = G4ThreeVector(0,0,0); // Primary particle position  
+  gPrimaryPosition = G4ThreeVector(0,0,0); // Primary particle position  
   gBeamMomentum = 1000 * CLHEP::MeV; // Primary particle momentum
   gParticle = "gamma"; // Particle name
 
@@ -100,12 +106,15 @@ int main(int argc,char** argv)
   // generation mode
   // 0 : (training sample) Uniform Random theta (0 ~ 50 deg) and phi (0 ~ 2 pi) generation.
   // 1 : (test sample) Step theta genration (0 ~ 30 deg, 5 deg step), phi(0 ~ 2 pi)
-  // 2 : ...
+  // 2 : uniform energy (0.1 ~ 2.0 GeV), uniform theta (0 ~ 50 deg), phi (0 ~ 2 pi)
+  // 3 : uniform xy position, uniform theta (0 ~ 50 deg), phi (0 ~ 2 pi), uniform energy (0.1 ~ 2.0 GeV)
+  // 4 : user defined ...
 
   switch (generation_mode){
   case 0:
     gUseGPS = false;
     gGenerateStepTheta = false;
+    gGenearteUniformMomentum = false;
     gThetaLimitMin = 0;    // polar angle min [deg]
     gThetaLimitMax = 50;   // polar angle max [deg]
     gGenerateUniformPhi = true;
@@ -113,10 +122,49 @@ int main(int argc,char** argv)
   case 1:
     gUseGPS = false;
     gGenerateStepTheta = true;
+    gGenearteUniformMomentum = false;
     gNsteps = 7; // number of steps: Generated polar angle [0 ~ (Nstep-1)*step]
     gTheta_step = 5; // step size of theta [deg]
     gGenerateUniformPhi = true;
     break;
+
+  case 2:
+    gUseGPS = false;
+    gGenearteUniformMomentum = true;
+    gBeamMomentumMax = 2.0 *CLHEP::GeV;
+    gBeamMomentumMin = 0.1 *CLHEP::GeV;
+    gGenerateStepTheta = false;
+    gThetaLimitMin = 0;    // polar angle min [deg]
+    gThetaLimitMax = 50;   // polar angle max [deg]
+    gGenerateUniformPhi = true;
+    break;
+    
+  case 3:
+    gUseGPS = false;
+    gGenearteUniformMomentum = false;
+    gGenerateStepTheta = false;
+    gThetaLimitMin = 0;    // polar angle min [deg]
+    gThetaLimitMax = 50;   // polar angle max [deg]
+    gGenerateUniformPhi = true;
+    
+    gGenearteUniformPosition = true;
+    gPrimaryParticlePositionXmin = -10.0*CLHEP::cm;
+    gPrimaryParticlePositionXmax = 10.0*CLHEP::cm;
+    gPrimaryParticlePositionYmin = -10.0*CLHEP::cm;
+    gPrimaryParticlePositionYmax = 10.0*CLHEP::cm;
+    break;
+    
+  case 4: // user defined ... 
+    //gUseGPS = false;
+    //gGenearteUniformMomentum = false;
+    //gGenerateStepTheta = false;
+    //gThetaLimitMin = 0;    // polar angle min [deg]
+    //gThetaLimitMax = 50;   // polar angle max [deg]
+    //gGenerateUniformPhi = true;
+
+    //gGenearteUniformPosition = false;
+    break;
+
     
   default:
     gUseGPS = true;
