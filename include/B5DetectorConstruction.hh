@@ -37,8 +37,6 @@
 
 #include <vector>
 
-class B5MagneticField;
-
 class G4VPhysicalVolume;
 class G4Material;
 class G4VSensitiveDetector;
@@ -66,6 +64,9 @@ class B5DetectorConstruction : public G4VUserDetectorConstruction
   G4double fScintThickness;
   G4double fConverterLength;
   G4double fConverterThickness;
+  G4LogicalVolume* logicScint;
+  G4LogicalVolume* logicPb;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

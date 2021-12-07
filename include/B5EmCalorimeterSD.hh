@@ -38,11 +38,11 @@ class G4HCofThisEvent;
 class G4TouchableHistory;
 
 /// EM calorimeter sensitive detector
-
+using namespace std;
 class B5EmCalorimeterSD : public G4VSensitiveDetector
 {   
 public:
-  B5EmCalorimeterSD(G4String name, G4int layerNumber, G4int scintNumber);
+  B5EmCalorimeterSD(G4String name);
   virtual ~B5EmCalorimeterSD();
   
   virtual void Initialize(G4HCofThisEvent*HCE);
@@ -50,38 +50,35 @@ public:
   void EndOfEvent(G4HCofThisEvent*);
 private:
   G4String fNameSD;
-  G4int fLayerId;
-  G4int fSegmentId;
-  G4double fEdep;
-  G4double fEweightedx;
-  G4double fEweightedy;
-  G4double fEweightedz;
-  G4double fEweightedt;
-  std::vector<G4double> fStepEdep;
+  vector<G4double> fEdep;
+  vector<G4double> fEweightedx;
+  vector<G4double> fEweightedy;
+  vector<G4double> fEweightedz;
+  vector<G4double> fEweightedt;
   
-  std::vector<G4double> fPreStepx;
-  std::vector<G4double> fPreStepy;
-  std::vector<G4double> fPreStepz;
-  std::vector<G4double> fPreStept;
+  vector<vector<G4double>> fStepEdep;
   
-  std::vector<G4double> fPostStepx;
-  std::vector<G4double> fPostStepy;
-  std::vector<G4double> fPostStepz;
-  std::vector<G4double> fPostStept;
+  vector<vector<G4double>> fPreStepx;
+  vector<vector<G4double>> fPreStepy;
+  vector<vector<G4double>> fPreStepz;
+  vector<vector<G4double>> fPreStept;
   
-  std::vector<G4double> fParticlePx;
-  std::vector<G4double> fParticlePy;
-  std::vector<G4double> fParticlePz;
-  std::vector<G4int> fParticleTrackID;
-  std::vector<G4int> fParticleParentID;
-  std::vector<G4double> fParticleCharge;
-  std::vector<G4double> fParticleMass;
-  std::vector<G4int> fParticlePDGID;
+  vector<vector<G4double>> fPostStepx;
+  vector<vector<G4double>> fPostStepy;
+  vector<vector<G4double>> fPostStepz;
+  vector<vector<G4double>> fPostStept;
+  
+  vector<vector<G4double>> fParticlePx;
+  vector<vector<G4double>> fParticlePy;
+  vector<vector<G4double>> fParticlePz;
+  vector<vector<G4int>> fParticleTrackID;
+  vector<vector<G4int>> fParticleParentID;
+  vector<vector<G4double>> fParticleCharge;
+  vector<vector<G4double>> fParticleMass;
+  vector<vector<G4int>> fParticlePDGID;
   
   B5EmCalorimeterHitsCollection* fHitsCollection;
   G4int fHCID;
-  
-  
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

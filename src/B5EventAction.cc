@@ -132,110 +132,112 @@ void B5EventAction::EndOfEventAction(const G4Event* event)
     G4String iHCName = hce -> GetHC(i) -> GetName();
     // EM Hit
     if (iHCName == "EMCalHitCollection"){
-      auto hit = (B5EmCalorimeterHit*) (hce -> GetHC(i) -> GetHit(0));
-      EMHit.cid[iarrayEMHit] = hit -> GetCellID();
-      EMHit.lid[iarrayEMHit] = hit -> GetLayerID();
-      EMHit.segid[iarrayEMHit] = hit -> GetSegmentID();
-      double xx,yy,zz,tt,ee;
-      hit -> GetXYZTE(xx,yy,zz,tt,ee);
-      
-      EMHit.one[iarrayEMHit] = 1;
-      EMHit.x[iarrayEMHit] = xx;
-      EMHit.y[iarrayEMHit] = yy;
-      EMHit.z[iarrayEMHit] = zz;
-      EMHit.t[iarrayEMHit] = tt;
-      EMHit.e[iarrayEMHit] = ee;	
-
-      if (fSaveStepLevel){
-	vector<double> prex, prey, prez, pret;
-	vector<double> postx, posty, postz, postt;
-	vector<double> stepE;
-	vector<double> ppx, ppy, ppz;
-	vector<int> trackid, parentid;
-	vector<double> charge, mass;
-	vector<int> pid;
+      int nEMHitsInLayer = hce -> GetHC(i) -> GetSize();
+      for (int ih = 0; ih < nEMHitsInLayer; ih++){
+	auto hit = (B5EmCalorimeterHit*) (hce -> GetHC(i) -> GetHit(ih));
 	
-	hit -> GetPreStepPos(prex,prey,prez,pret);
-	hit -> GetPostStepPos(postx,posty,postz,postt);
-	hit -> GetStepEdep(stepE);
-	hit -> GetParticleTrackInfo(ppx,ppy,ppz,trackid,parentid,charge,mass,pid);
+	EMHit.cid[iarrayEMHit] = hit -> GetCellID();
+	EMHit.lid[iarrayEMHit] = hit -> GetLayerID();
+	EMHit.segid[iarrayEMHit] = hit -> GetSegmentID();
+	double xx,yy,zz,tt,ee;
+	hit -> GetXYZTE(xx,yy,zz,tt,ee);
 	
-	fEMStepEdep.push_back(stepE);
-	fEMPreStepx.push_back(prex);
-	fEMPreStepy.push_back(prey);
-	fEMPreStepz.push_back(prez);
-	fEMPreStept.push_back(pret);
-	fEMPostStepx.push_back(postx);
-	fEMPostStepy.push_back(posty);
-	fEMPostStepz.push_back(postz);
-	fEMPostStept.push_back(postt);
-
-	fEMParticlePx.push_back(ppx);
-	fEMParticlePy.push_back(ppy);
-	fEMParticlePz.push_back(ppz);
-	fEMParticleTrackID.push_back(trackid);
-	fEMParticleParentID.push_back(parentid);
-	fEMParticleCharge.push_back(charge);
-	fEMParticleMass.push_back(mass);
-	fEMParticlePDGID.push_back(pid);
+	EMHit.one[iarrayEMHit] = 1;
+	EMHit.x[iarrayEMHit] = xx;
+	EMHit.y[iarrayEMHit] = yy;
+	EMHit.z[iarrayEMHit] = zz;
+	EMHit.t[iarrayEMHit] = tt;
+	EMHit.e[iarrayEMHit] = ee;	
 	
+	if (fSaveStepLevel){
+	  vector<double> prex, prey, prez, pret;
+	  vector<double> postx, posty, postz, postt;
+	  vector<double> stepE;
+	  vector<double> ppx, ppy, ppz;
+	  vector<int> trackid, parentid;
+	  vector<double> charge, mass;
+	  vector<int> pid;
+	  
+	  hit -> GetPreStepPos(prex,prey,prez,pret);
+	  hit -> GetPostStepPos(postx,posty,postz,postt);
+	  hit -> GetStepEdep(stepE);
+	  hit -> GetParticleTrackInfo(ppx,ppy,ppz,trackid,parentid,charge,mass,pid);
+	  
+	  fEMStepEdep.push_back(stepE);
+	  fEMPreStepx.push_back(prex);
+	  fEMPreStepy.push_back(prey);
+	  fEMPreStepz.push_back(prez);
+	  fEMPreStept.push_back(pret);
+	  fEMPostStepx.push_back(postx);
+	  fEMPostStepy.push_back(posty);
+	  fEMPostStepz.push_back(postz);
+	  fEMPostStept.push_back(postt);
+	  
+	  fEMParticlePx.push_back(ppx);
+	  fEMParticlePy.push_back(ppy);
+	  fEMParticlePz.push_back(ppz);
+	  fEMParticleTrackID.push_back(trackid);
+	  fEMParticleParentID.push_back(parentid);
+	  fEMParticleCharge.push_back(charge);
+	  fEMParticleMass.push_back(mass);
+	  fEMParticlePDGID.push_back(pid);
+	}
+	iarrayEMHit++;    
       }
-      
-      iarrayEMHit++;    
     }
-
+    
     // Lead Hit
     else if (iHCName == "LeadHitCollection"){
-      auto hit = (B5LeadHit*) (hce -> GetHC(i) -> GetHit(0));
-      LeadHit.cid[iarrayLeadHit] = hit -> GetCellID();
-      LeadHit.lid[iarrayLeadHit] = hit -> GetLayerID();
-      double xx,yy,zz,tt,ee;
-      hit -> GetXYZTE(xx,yy,zz,tt,ee);
-      LeadHit.one[iarrayLeadHit] = 1;
-      LeadHit.x[iarrayLeadHit] = xx;
-      LeadHit.y[iarrayLeadHit] = yy;
-      LeadHit.z[iarrayLeadHit] = zz;
-      LeadHit.t[iarrayLeadHit] = tt;
-      LeadHit.e[iarrayLeadHit] = ee;	
+      int nLeadHitsInLayer = hce -> GetHC(i) -> GetSize();
+      for (int ih = 0; ih < nLeadHitsInLayer; ih++){
+	auto hit = (B5LeadHit*) (hce -> GetHC(i) -> GetHit(ih));
+	LeadHit.cid[iarrayLeadHit] = hit -> GetCellID();
+	LeadHit.lid[iarrayLeadHit] = hit -> GetLayerID();
+	double xx,yy,zz,tt,ee;
+	hit -> GetXYZTE(xx,yy,zz,tt,ee);
+	LeadHit.one[iarrayLeadHit] = 1;
+	LeadHit.x[iarrayLeadHit] = xx;
+	LeadHit.y[iarrayLeadHit] = yy;
+	LeadHit.z[iarrayLeadHit] = zz;
+	LeadHit.t[iarrayLeadHit] = tt;
+	LeadHit.e[iarrayLeadHit] = ee;	
       
-      if (fSaveStepLevel){
-	vector<double> prex, prey, prez, pret;
-	vector<double> postx, posty, postz, postt;
-	vector<double> stepE;
-	vector<double> ppx, ppy, ppz;
-	vector<int> trackid, parentid;
-	vector<double> charge, mass;
-	vector<int> pid;
+	if (fSaveStepLevel){
+	  vector<double> prex, prey, prez, pret;
+	  vector<double> postx, posty, postz, postt;
+	  vector<double> stepE;
+	  vector<double> ppx, ppy, ppz;
+	  vector<int> trackid, parentid;
+	  vector<double> charge, mass;
+	  vector<int> pid;
 	
-	hit -> GetPreStepPos(prex,prey,prez,pret);
-	hit -> GetPostStepPos(postx,posty,postz,postt);
-	hit -> GetStepEdep(stepE);
-	hit -> GetParticleTrackInfo(ppx,ppy,ppz,trackid,parentid,charge,mass,pid);
+	  hit -> GetPreStepPos(prex,prey,prez,pret);
+	  hit -> GetPostStepPos(postx,posty,postz,postt);
+	  hit -> GetStepEdep(stepE);
+	  hit -> GetParticleTrackInfo(ppx,ppy,ppz,trackid,parentid,charge,mass,pid);
 
-	fLeadStepEdep.push_back(stepE);
-	fLeadPreStepx.push_back(prex);
-	fLeadPreStepy.push_back(prey);
-	fLeadPreStepz.push_back(prez);
-	fLeadPreStept.push_back(pret);
-	fLeadPostStepx.push_back(postx);
-	fLeadPostStepy.push_back(posty);
-	fLeadPostStepz.push_back(postz);
-	fLeadPostStept.push_back(postt);
+	  fLeadStepEdep.push_back(stepE);
+	  fLeadPreStepx.push_back(prex);
+	  fLeadPreStepy.push_back(prey);
+	  fLeadPreStepz.push_back(prez);
+	  fLeadPreStept.push_back(pret);
+	  fLeadPostStepx.push_back(postx);
+	  fLeadPostStepy.push_back(posty);
+	  fLeadPostStepz.push_back(postz);
+	  fLeadPostStept.push_back(postt);
 
-	fLeadParticlePx.push_back(ppx);
-	fLeadParticlePy.push_back(ppy);
-	fLeadParticlePz.push_back(ppz);
-	fLeadParticleTrackID.push_back(trackid);
-	fLeadParticleParentID.push_back(parentid);
-	fLeadParticleCharge.push_back(charge);
-	fLeadParticleMass.push_back(mass);
-	fLeadParticlePDGID.push_back(pid);
-	
+	  fLeadParticlePx.push_back(ppx);
+	  fLeadParticlePy.push_back(ppy);
+	  fLeadParticlePz.push_back(ppz);
+	  fLeadParticleTrackID.push_back(trackid);
+	  fLeadParticleParentID.push_back(parentid);
+	  fLeadParticleCharge.push_back(charge);
+	  fLeadParticleMass.push_back(mass);
+	  fLeadParticlePDGID.push_back(pid);
+	}
+	iarrayLeadHit++;
       }
-      
-      iarrayLeadHit++;
     }
-
   }
   
   EMHit.nhit = iarrayEMHit;
@@ -263,7 +265,7 @@ void B5EventAction::SetBranch(){
   if (fSaveStepLevel){
     gInterpreter -> GenerateDictionary("vector<vector<int> >","vector");
     gInterpreter -> GenerateDictionary("vector<vector<double> >","vector");
-    gSystem -> Exec("rm -f AutoDict_vector_vector_*___*");
+    //gSystem -> Exec("rm -f AutoDict_vector_vector_*___*");
   }
   fTree -> Branch("eventID",&EventInfo.eventID,"eventID/I");
   fTree -> Branch("runID",&EventInfo.runID,"runID/I");

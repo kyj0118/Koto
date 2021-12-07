@@ -61,21 +61,27 @@
 #include "G4SystemOfUnits.hh"
 
 // Root classes
-#include "TString.h"
+//#include "TString.h"
     
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4int gNLayers;
+G4int gNStrips;
+G4int gTotalNScintillators;
 
 B5DetectorConstruction::B5DetectorConstruction()
   : G4VUserDetectorConstruction()
 {
   fNumberOfLayers = 105;
-  fNumberOfScintillators = 105; // 5mm width
-  //fNumberOfScintillators = 35; // 15mm width
+  fNumberOfScintillators = 35; // 15mm width
+  
+  gNLayers = fNumberOfLayers;
+  gNStrips = fNumberOfScintillators;
+  gTotalNScintillators = fNumberOfLayers*fNumberOfScintillators;
   
   fScintLength = 52.5*cm;
-  fScintWidth = 0.5*cm;
+  fScintWidth = 1.5*cm;
   fScintThickness = 5.0*mm;
-  //fScintThickness = 15.0*mm;
   
   fConverterLength = fScintLength;
   fConverterThickness = 1.0*mm;
@@ -135,18 +141,15 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
   
   // Pb plate
   G4double pb_size_x = fConverterLength;
-  //G4double Pb_size_x = 1.*cm;
   G4double pb_size_y = fConverterLength;
   G4double pb_size_z = fConverterThickness; 
-  G4double pb_offset_z = 0.5 * pb_size_z;  
+  
   // EJ 200 Scintillator
   G4double scint_size_x = fScintLength;
   G4double scint_size_y = fScintWidth;
   G4double scint_size_z = fScintThickness;
   
   G4double layer_gap_z = pb_size_z + scint_size_z;
-  
-  
   
   std::vector<G4double> vRot;
   vRot.clear();
@@ -170,26 +173,26 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
 				0.5*scint_size_y,
 				0.5*scint_size_z);
   
-  
-  G4LogicalVolume* logicScint[105*105] = {NULL};
-  G4LogicalVolume* logicLead[105] = {NULL};
-  
+  G4String str_scintname = "LogicScint";
+  G4String str_leadname = "LogicLead";
+
+
+  logicScint = new G4LogicalVolume(solidScint, Material_Scint, str_scintname);
+  logicPb = new G4LogicalVolume(solidLead, Material_Pb, str_leadname);  
   
   for (int iLayer = 0; iLayer < fNumberOfLayers; iLayer++){
-    TString str_leadname_tmp = Form("Lead%d",iLayer);
-    G4String str_leadname = str_leadname_tmp.Data();
+    G4double scint_position_z = scint_size_z/2.0 + layer_gap_z *((G4double) iLayer);
+    G4double pb_position_z = scint_position_z + layer_gap_z/2.0;
+    
     for (int i = 0 ; i < fNumberOfScintillators; i++){
       G4int iScint = i + iLayer * fNumberOfScintillators;
-      TString str_scintname_tmp = Form("Scint%d_%d",iLayer,i);
-      G4String str_scintname = str_scintname_tmp.Data();
-      logicScint[iScint] = new G4LogicalVolume(solidScint, Material_Scint, str_scintname);
       G4double dnscint = (G4double) (fNumberOfScintillators-1);
-      G4double scint_offset_y = ((G4double) i - dnscint/2.0) * scint_size_y;
-      G4double scint_offset_z = pb_offset_z + (pb_size_z + scint_size_z)/2.0 + layer_gap_z *((G4double) iLayer);
+      G4double scint_position_y = ((G4double) i - dnscint/2.0) * scint_size_y;
+      // EmCal
       if (iLayer % 2 == 0){
 	new G4PVPlacement(0,
-			  G4ThreeVector(0,scint_offset_y,scint_offset_z),
-			  logicScint[iScint],
+			  G4ThreeVector(0,scint_position_y,scint_position_z),
+			  logicScint,
 			  str_scintname,
 			  logicWorld,
 			  false,
@@ -198,8 +201,8 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
       }
       else {
 	new G4PVPlacement(pRot,
-			  G4ThreeVector(scint_offset_y,0,scint_offset_z),
-			  logicScint[iScint],
+			  G4ThreeVector(scint_position_y,0,scint_position_z),
+			  logicScint,
 			  str_scintname,
 			  logicWorld,
 			  false,
@@ -207,31 +210,22 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
 			  false);
       }
     }
-    logicLead[iLayer] = new G4LogicalVolume(solidLead,
-    					    Material_Pb,
-					    str_leadname);
-
+    // Lead
     new G4PVPlacement(0,
-		      G4ThreeVector(0,0,pb_offset_z + layer_gap_z * ((G4double) iLayer)),
-		      logicLead[iLayer],
+		      G4ThreeVector(0,0,pb_position_z),
+		      logicPb,
 		      str_leadname,
 		      logicWorld,
 		      false,
-		      0,
+		      iLayer,
 		      false);
   }
-  
-  // visualization attributes ------------------------------------------------
-  /*
-    auto visAttributes = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-    visAttributes->SetVisibility(false);
-    worldLogical->SetVisAttributes(visAttributes);
-    fVisAttributes.push_back(visAttributes);
-  */
-  
+
+  auto visAttributes = new G4VisAttributes(G4Colour(0,1.0,1.0,0.5));
+  logicScint->SetVisAttributes(visAttributes);
+  fVisAttributes.push_back(visAttributes);
+
   return physWorld;
-
-
 }
 
 
@@ -239,30 +233,16 @@ G4VPhysicalVolume* B5DetectorConstruction::Construct(){
 
 void B5DetectorConstruction::ConstructSDandField()
 {
-
-  //Sensitive Detector
-  for (int iLayer = 0 ; iLayer < fNumberOfLayers; iLayer++){
-    TString str_ilayer_tmp = Form("%d",iLayer);
-    for (int iScint = 0 ; iScint < fNumberOfScintillators; iScint++){
-      TString str_iscint_tmp = Form("%d",iScint);
-      //G4String str_ilayer = str_ilayer_tmp.Data();
-      //G4String str_iscint = str_iscint_tmp.Data();
-      G4String str_SDname = "ScintillatorSD" + std::string(str_ilayer_tmp.Data()) + "_" + std::string(str_iscint_tmp.Data());
-      G4String str_LVname = "Scint" + std::string(str_ilayer_tmp.Data()) + "_" + std::string(str_iscint_tmp.Data());
-      B5EmCalorimeterSD* ScintillatorSD = new B5EmCalorimeterSD(str_SDname,iLayer,iScint);
-      // make the pointer of sensitive detector on thing set upper
-      G4SDManager::GetSDMpointer() -> AddNewDetector(ScintillatorSD);
-      // And set the pointer on logical volume
-      SetSensitiveDetector(str_LVname, ScintillatorSD, true);
-    }
-    // Lead
-    G4String str_SDnameLead = "LeadSD" + std::string(str_ilayer_tmp.Data());
-    G4String str_LVnameLead = "Lead" + std::string(str_ilayer_tmp.Data());
-    B5LeadSD* LeadSD = new B5LeadSD(str_SDnameLead,iLayer);
-    G4SDManager::GetSDMpointer() -> AddNewDetector(LeadSD);
-    SetSensitiveDetector(str_LVnameLead, LeadSD, true);
-  }
-
+  B5EmCalorimeterSD* ScintillatorSD = new B5EmCalorimeterSD("ScintSD");
+  B5LeadSD* LeadSD = new B5LeadSD("LeadSD");
+  
+  G4SDManager::GetSDMpointer() -> AddNewDetector(ScintillatorSD);
+  G4SDManager::GetSDMpointer() -> AddNewDetector(LeadSD);
+  
+  SetSensitiveDetector(logicScint, ScintillatorSD);
+  SetSensitiveDetector(logicPb, LeadSD);
+  
+  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

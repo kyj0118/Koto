@@ -1,4 +1,4 @@
-# Install script for directory: /Users/a1004/Desktop/Koto/git_5mmdesign/Koto
+# Install script for directory: /Users/a1004/Desktop/Koto/design15mm_211207/Koto
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,7 +38,7 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/Users/a1004/Desktop/Koto/git_5mmdesign/Koto/build/exampleB5")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/Users/a1004/Desktop/Koto/design15mm_211207/Koto/build/exampleB5")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/exampleB5" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/exampleB5")
     execute_process(COMMAND /usr/bin/install_name_tool
@@ -64,5 +64,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/a1004/Desktop/Koto/git_5mmdesign/Koto/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/a1004/Desktop/Koto/design15mm_211207/Koto/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

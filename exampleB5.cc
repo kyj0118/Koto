@@ -63,13 +63,16 @@ bool gSaveStepLevel = false;    //
 long gSeed = 0;                 // Random seed number. 0 for time seed 
 bool gUseGPS = true;            //
 bool gGenerateStepTheta;  //
+bool gGenerateUniformPhi = true;  //
 
 
 // if gUseGPS = false, user defined beam conditions
 G4double gThetaLimitMin;  
 G4double gThetaLimitMax;
+G4double gGeneratePhi;
 G4double gBeamMomentum;
 G4String gParticle;
+G4ThreeVector gPrimaryParticlePosition;
 
 G4double gNsteps;
 G4double gTheta_step;
@@ -87,31 +90,43 @@ int main(int argc,char** argv)
   
   
   gSaveStepLevel = false;  // whether save all the step information or not
-  gUseGPS = false;  // [true] : use General Particle Source described in your.mac file (/gps/position ...)   [false] : Random angle generation
+  gUseGPS = false;  // [true] : use General Particle Source described in your.mac file (/gps/position ...)   [false] : defined at bellow
   gGenerateStepTheta = false;
-  if (gUseGPS == false){ // Random Beam Generation Setting
-    
-    if (gGenerateStepTheta == true){
-      // special generation: 5 deg step (0 ~ 30 deg) in polar angle theta
-      gNsteps = 7; // number of steps: Generated angle [0 ~ (Nstep-1)*step]
-      gTheta_step = 5; // step size of theta [deg]
-    }
-    
-    if (gGenerateStepTheta == false){
-      //                     // Uniform azimuthal angle [0 ~ 2pi]    
-      gThetaLimitMin = 0;    // polar angle min [deg]
-      gThetaLimitMax = 50;   // polar angle max [deg]
-    }
-    
-    gBeamMomentum = 1000 * CLHEP::MeV; // Primary particle momentum
-    gParticle = "gamma";
-  }
+  gPrimaryParticlePosition = G4ThreeVector(0,0,0); // Primary particle position  
+  gBeamMomentum = 1000 * CLHEP::MeV; // Primary particle momentum
+  gParticle = "gamma"; // Particle name
 
-  if (argc == 1) gUseGPS = true; // use vis.mac
+  int generation_mode = 0;  
+  // generation mode
+  // 0 : (training sample) Uniform Random theta (0 ~ 50 deg) and phi (0 ~ 2 pi) generation.
+  // 1 : (test sample) Step theta genration (0 ~ 30 deg, 5 deg step), phi(0 ~ 2 pi)
+  // 2 : ...
+
+  switch (generation_mode){
+  case 0:
+    gUseGPS = false;
+    gGenerateStepTheta = false;
+    gThetaLimitMin = 0;    // polar angle min [deg]
+    gThetaLimitMax = 50;   // polar angle max [deg]
+    gGenerateUniformPhi = true;
+    break;
+  case 1:
+    gUseGPS = false;
+    gGenerateStepTheta = true;
+    gNsteps = 7; // number of steps: Generated polar angle [0 ~ (Nstep-1)*step]
+    gTheta_step = 5; // step size of theta [deg]
+    gGenerateUniformPhi = true;
+    break;
+    
+  default:
+    gUseGPS = true;
+    break;
+  }
   
   //                                      User Defined Parameters                                                //
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+  if (argc == 1) gUseGPS = true; // use vis.mac
   if (argc == 4){
     //Random engine
     CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
@@ -123,9 +138,12 @@ int main(int argc,char** argv)
   G4cout << "Save Step Level : " << gSaveStepLevel << G4endl;
   if (gUseGPS)
     G4cout << "Use GPS in .mac file" << G4endl;
-  else 
-    G4cout << "Random Theta Generation" << G4endl;
   
+  if (generation_mode == 0)
+    G4cout << "Training sample generation" << G4endl;
+  else
+    G4cout << "Test sample generation" << G4endl;
+
   TString str_fname = argv[2];
   if (!str_fname.EndsWith(".root")){
     str_fname += ".root";
@@ -134,9 +152,11 @@ int main(int argc,char** argv)
     str_fname = "VisMac.root";
   }
 
-  auto tr = new TTree("tree","Geant4 output");
   
-  auto physicsList = new FTFP_BERT;
+  TFile *tf = new TFile(str_fname,"RECREATE");
+  auto tr = new TTree("tree","Geant4 output");
+  tr -> SetAutoSave();
+  auto physicsList = new FTFP_BERT();
   G4RunManager* runManager = new G4RunManager;
   runManager -> SetUserInitialization(physicsList);
   runManager -> SetUserInitialization(new B5ActionInitialization(tr));
@@ -144,18 +164,14 @@ int main(int argc,char** argv)
   runManager -> SetUserAction(new B5PrimaryGeneratorAction());
   runManager -> Initialize();
   
-  TFile *tf = new TFile(str_fname,"RECREATE");
-  
   G4VisManager* visManager = new G4VisExecutive;
   visManager -> Initialize();
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
   
   if (argc != 1) {
-    
     G4String command = "/control/execute ";
     G4String fileName = argv[1];
     UImanager -> ApplyCommand(command+fileName);
-    
   }
   else 
   {

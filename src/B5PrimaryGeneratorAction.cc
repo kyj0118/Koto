@@ -39,18 +39,21 @@
 #include "TRandom3.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-G4ThreeVector gPrimaryParticlePosition;
+
 G4ThreeVector gPrimaryParticleMomentumDirection;
 int gPrimaryParticlePDG;
 double gPrimaryParticleEnergy;
 double gPrimaryParticleMass;
+extern G4ThreeVector gPrimaryParticlePosition;
 extern bool gUseGPS;
 extern bool gGenerateStepTheta;
+extern bool gGenerateUniformPhi;
 extern G4double gNsteps;
 extern G4double gTheta_step;
 
 extern G4double gThetaLimitMin;  
 extern G4double gThetaLimitMax;
+extern G4double gGeneratePhi;
 extern G4double gBeamMomentum;
 extern G4String gParticle;
 
@@ -95,20 +98,28 @@ void B5PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
   }
   else {
     fParticleGun->SetParticleDefinition(fParticle);  
-    fParticleGun->SetParticlePosition(G4ThreeVector(0.,0.,0.));
+    fParticleGun->SetParticlePosition(gPrimaryParticlePosition);
     fParticleGun->SetParticleTime(0.0*ns);
     // random generation
     double dx,dy,dz;
+    G4double pi = 3.14159265358979;
+    G4double deg2rad = pi/180.0;
     if (gGenerateStepTheta == true){
       G4double GenTheta = ( (int) (gNsteps * gRandom -> Uniform()) );
-      GenTheta = GenTheta*gTheta_step * 3.14159265358979/180.0;
+      GenTheta = GenTheta*gTheta_step * deg2rad;
       dz = cos(GenTheta);
     }
     else{
-      double theta = gRandom -> Uniform(gThetaLimitMin/180.0*3.14159265358979,gThetaLimitMax/180.0*3.14159265358979);
+      double theta = gRandom -> Uniform(gThetaLimitMin*deg2rad,gThetaLimitMax*deg2rad);
       dz = cos(theta);
     }
-    double phi = gRandom -> Uniform(0,2*3.14159265358979); // uniform phi 
+    double phi;
+    if (gGenerateUniformPhi){
+      phi = gRandom -> Uniform(0,2.0*pi); // uniform phi
+    }
+    else {
+      phi = gGeneratePhi; // defined phi
+    }
     double sin_theta= sqrt(1.0-dz*dz);
     dx = sin_theta * cos(phi);
     dy = sin_theta * sin(phi); 

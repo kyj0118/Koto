@@ -39,34 +39,68 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 extern bool gSaveStepLevel;
-
-B5LeadSD::B5LeadSD(G4String name, G4int layerNumber)
-  : G4VSensitiveDetector(name), fNameSD(name), fLayerId(layerNumber), fHitsCollection(nullptr), fHCID(-1)
+extern G4int gNLayers;
+B5LeadSD::B5LeadSD(G4String name)
+  : G4VSensitiveDetector(name), fNameSD(name), fHitsCollection(nullptr), fHCID(-1)
 {
-  fEdep = 0.0; fEweightedx = 0.0; fEweightedy = 0.0; fEweightedz = 0.0; fEweightedt = 0.0;
+
+  fEdep.clear();
+  fEweightedx.clear();
+  fEweightedy.clear();
+  fEweightedz.clear();
+  fEweightedt.clear();
+  
+  fEdep.resize(gNLayers,0);
+  fEweightedx.resize(gNLayers,0);
+  fEweightedy.resize(gNLayers,0);
+  fEweightedz.resize(gNLayers,0);
+  fEweightedt.resize(gNLayers,0);
+  
   collectionName.insert("LeadHitCollection"); 
 
-  fStepEdep.clear();
-
-  fPreStepx.clear();
-  fPreStepy.clear();
-  fPreStepz.clear();
-  fPreStept.clear();
+  if (gSaveStepLevel == true){
+    fStepEdep.clear();
   
-  fPostStepx.clear();
-  fPostStepy.clear();
-  fPostStepz.clear();
-  fPostStept.clear();
+    fPreStepx.clear();
+    fPreStepy.clear();
+    fPreStepz.clear();
+    fPreStept.clear();
+  
+    fPostStepx.clear();
+    fPostStepy.clear();
+    fPostStepz.clear();
+    fPostStept.clear();
 
-  fParticlePx.clear();
-  fParticlePy.clear();
-  fParticlePz.clear();
-  fParticleTrackID.clear();
-  fParticleParentID.clear();
-  fParticleCharge.clear();
-  fParticleMass.clear();
-  fParticlePDGID.clear();
+    fParticlePx.clear();
+    fParticlePy.clear();
+    fParticlePz.clear();
+    fParticleTrackID.clear();
+    fParticleParentID.clear();
+    fParticleCharge.clear();
+    fParticleMass.clear();
+    fParticlePDGID.clear();
 
+    fStepEdep.resize(gNLayers);
+  
+    fPreStepx.resize(gNLayers);
+    fPreStepy.resize(gNLayers);
+    fPreStepz.resize(gNLayers);
+    fPreStept.resize(gNLayers);
+  
+    fPostStepx.resize(gNLayers);
+    fPostStepy.resize(gNLayers);
+    fPostStepz.resize(gNLayers);
+    fPostStept.resize(gNLayers);
+
+    fParticlePx.resize(gNLayers);
+    fParticlePy.resize(gNLayers);
+    fParticlePz.resize(gNLayers);
+    fParticleTrackID.resize(gNLayers);
+    fParticleParentID.resize(gNLayers);
+    fParticleCharge.resize(gNLayers);
+    fParticleMass.resize(gNLayers);
+    fParticlePDGID.resize(gNLayers);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -90,9 +124,11 @@ void B5LeadSD::Initialize(G4HCofThisEvent* hce)
 G4bool B5LeadSD::ProcessHits(G4Step*step, G4TouchableHistory*)
 {
   auto edep = step->GetTotalEnergyDeposit();
-  if (edep != 0.0){
+  if (edep != 0){
     auto prepoint = step -> GetPreStepPoint();
     auto postpoint = step -> GetPostStepPoint();
+    auto physVolume = prepoint -> GetPhysicalVolume();
+    G4int cpid = physVolume -> GetCopyNo();
     
     G4double prex = (prepoint -> GetPosition()).x();
     G4double prey = (prepoint -> GetPosition()).y();
@@ -108,25 +144,25 @@ G4bool B5LeadSD::ProcessHits(G4Step*step, G4TouchableHistory*)
     G4double y = (prey + posty)/2.0;
     G4double z = (prez + postz)/2.0;
     G4double t = (pret + postt)/2.0;
-
-    fEdep += edep;
-    fEweightedx += x * edep;
-    fEweightedy += y * edep;
-    fEweightedz += z * edep;
-    fEweightedt += t * edep; 
-
-    if (gSaveStepLevel == true){    
-      fStepEdep.push_back(edep);
     
-      fPreStepx.push_back(prex);
-      fPreStepy.push_back(prey);
-      fPreStepz.push_back(prez);
-      fPreStept.push_back(pret);
+    fEdep[cpid] += edep;
+    fEweightedx[cpid] += x * edep;
+    fEweightedy[cpid] += y * edep;
+    fEweightedz[cpid] += z * edep;
+    fEweightedt[cpid] += t * edep; 
+    
+    if(gSaveStepLevel == true){
+      fStepEdep[cpid].push_back(edep);
+    
+      fPreStepx[cpid].push_back(prex);
+      fPreStepy[cpid].push_back(prey);
+      fPreStepz[cpid].push_back(prez);
+      fPreStept[cpid].push_back(pret);
 
-      fPostStepx.push_back(postx);
-      fPostStepy.push_back(posty);
-      fPostStepz.push_back(postz);
-      fPostStept.push_back(postt);
+      fPostStepx[cpid].push_back(postx);
+      fPostStepy[cpid].push_back(posty);
+      fPostStepz[cpid].push_back(postz);
+      fPostStept[cpid].push_back(postt);
 
       // particle info
       G4Track *tr = step -> GetTrack();
@@ -141,15 +177,15 @@ G4bool B5LeadSD::ProcessHits(G4Step*step, G4TouchableHistory*)
       G4double pcharge = pdef -> GetPDGCharge();
       G4double pmass = pdef -> GetPDGMass();
       G4int pid = pdef -> GetPDGEncoding();
-
-      fParticlePx.push_back(ppx);
-      fParticlePy.push_back(ppy);
-      fParticlePz.push_back(ppz);
-      fParticleTrackID.push_back(trackid);
-      fParticleParentID.push_back(parentid);
-      fParticleCharge.push_back(pcharge);
-      fParticleMass.push_back(pmass);
-      fParticlePDGID.push_back(pid);
+    
+      fParticlePx[cpid].push_back(ppx);
+      fParticlePy[cpid].push_back(ppy);
+      fParticlePz[cpid].push_back(ppz);
+      fParticleTrackID[cpid].push_back(trackid);
+      fParticleParentID[cpid].push_back(parentid);
+      fParticleCharge[cpid].push_back(pcharge);
+      fParticleMass[cpid].push_back(pmass);
+      fParticlePDGID[cpid].push_back(pid);
     }
   }
   return true;
@@ -158,47 +194,50 @@ G4bool B5LeadSD::ProcessHits(G4Step*step, G4TouchableHistory*)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B5LeadSD::EndOfEvent(G4HCofThisEvent* hce){
-  if (fEdep == 0) return;
-  else {
-    fEweightedx/=fEdep;
-    fEweightedy/=fEdep;
-    fEweightedz/=fEdep;
-    fEweightedt/=fEdep;
+  for (int i = 0; i < gNLayers; i++){
+    if (fEdep[i] == 0) continue;
+    
+    fEweightedx[i]/=fEdep[i];
+    fEweightedy[i]/=fEdep[i];
+    fEweightedz[i]/=fEdep[i];
+    fEweightedt[i]/=fEdep[i];
     
     fHitsCollection->insert(new B5LeadHit(fHCID));
-    auto hit = (B5LeadHit*) ((hce -> GetHC(fHCID)) -> GetHit(0));
-    hit -> SetXYZTE(fEweightedx, fEweightedy, fEweightedz, fEweightedt, fEdep);
-    hit -> SetLayerID(fLayerId);
-
-    if (gSaveStepLevel == true){
-      hit -> SetPreStepPos(fPreStepx,fPreStepy,fPreStepz,fPreStept);
-      hit -> SetPostStepPos(fPostStepx,fPostStepy,fPostStepz,fPostStept);
-      hit -> SetStepEdep(fStepEdep);
+    G4int CurrentHitID = fHitsCollection->GetSize()-1;
+    auto hit = (B5LeadHit*) ((hce -> GetHC(fHCID)) -> GetHit(CurrentHitID));
+    G4int layerID = i;
+    hit -> SetXYZTE(fEweightedx[i], fEweightedy[i], fEweightedz[i], fEweightedt[i], fEdep[i]);
+    hit -> SetLayerID(layerID);
+    hit -> SetCellID(i);
+    
+    if(gSaveStepLevel == true){
+      hit -> SetPreStepPos(fPreStepx[i],fPreStepy[i],fPreStepz[i],fPreStept[i]);
+      hit -> SetPostStepPos(fPostStepx[i],fPostStepy[i],fPostStepz[i],fPostStept[i]);
+      hit -> SetStepEdep(fStepEdep[i]);
+      hit -> SetParticleTrackInfo(fParticlePx[i],fParticlePy[i],fParticlePz[i],fParticleTrackID[i],fParticleParentID[i],
+				  fParticleCharge[i],fParticleMass[i],fParticlePDGID[i]);
       
-      hit -> SetParticleTrackInfo(fParticlePx,fParticlePy,fParticlePz,fParticleTrackID,fParticleParentID,
-				  fParticleCharge,fParticleMass,fParticlePDGID);
-
-      fStepEdep.clear();
-    
-      fPreStepx.clear();
-      fPreStepy.clear();
-      fPreStepz.clear();
-      fPreStept.clear();
-    
-      fPostStepx.clear();
-      fPostStepy.clear();
-      fPostStepz.clear();
-      fPostStept.clear();
-
-      fParticlePx.clear();
-      fParticlePy.clear();
-      fParticlePz.clear();
-      fParticleTrackID.clear();
-      fParticleParentID.clear();
-      fParticleCharge.clear();
-      fParticleMass.clear();
-      fParticlePDGID.clear();
+      fStepEdep[i].clear();
+      
+      fPreStepx[i].clear();
+      fPreStepy[i].clear();
+      fPreStepz[i].clear();
+      fPreStept[i].clear();
+      
+      fPostStepx[i].clear();
+      fPostStepy[i].clear();
+      fPostStepz[i].clear();
+      fPostStept[i].clear();
+      
+      fParticlePx[i].clear();
+      fParticlePy[i].clear();
+      fParticlePz[i].clear();
+      fParticleTrackID[i].clear();
+      fParticleParentID[i].clear();
+      fParticleCharge[i].clear();
+      fParticleMass[i].clear();
+      fParticlePDGID[i].clear();
     }
-    fEdep = 0.0; fEweightedx = 0.0; fEweightedy = 0.0; fEweightedz = 0.0; fEweightedt = 0.0;
+    fEdep[i] = 0.0; fEweightedx[i] = 0.0; fEweightedy[i] = 0.0; fEweightedz[i] = 0.0; fEweightedt[i] = 0.0;
   }
 }
